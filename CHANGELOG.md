@@ -1,3 +1,16 @@
+# 1.0.0 (2026-07-04)
+
+
+### Bug Fixes
+
+* **ci:** bump release workflow to Node 22 ([fd7a49d](https://github.com/kawbu/Journey/commit/fd7a49d86633cbb8664f524ac7523c58a637331e))
+* **ci:** regenerate package-lock.json under Node 22 ([f45b8fa](https://github.com/kawbu/Journey/commit/f45b8fa60996dce920598ea15bbddd1ed7576791))
+
+
+### Features
+
+* **dates:** add Past Memories screen and automated semantic versioning ([15377d7](https://github.com/kawbu/Journey/commit/15377d77c13d086bc6d474face9bbfcf48bb00b5))
+
 # Changelog
 
 All notable changes to this project are documented here. Format loosely follows
