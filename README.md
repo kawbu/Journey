@@ -8,7 +8,8 @@ Built with **Expo (React Native) + TypeScript**, backed by **Supabase** (Postgre
 Realtime).
 
 For the full product/architecture writeup — data model, screens, schema, and notable design
-decisions — see **[DESIGN.md](./DESIGN.md)**. This file is just about running the project.
+decisions — see **[DESIGN.md](./DESIGN.md)**. For commit conventions and the release process,
+see **[CONTRIBUTING.md](./CONTRIBUTING.md)**. This file is just about running the project.
 
 ## Prerequisites
 
@@ -90,6 +91,13 @@ npx tsc --noEmit                        # type-check
 npx expo export --platform ios          # confirm the bundle builds
 npx expo start --ios                    # run it for real on a simulator
 ```
+
+## Releases & versioning
+
+Versioning is fully automated via [semantic-release](https://semantic-release.gitbook.io/),
+driven by [Conventional Commit](https://www.conventionalcommits.org/) messages (enforced by a
+local git hook). See **[CONTRIBUTING.md](./CONTRIBUTING.md)** for the commit message format and
+exactly what happens on release — don't hand-edit version numbers or `CHANGELOG.md`.
 
 ## Known limitations
 

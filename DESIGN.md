@@ -51,6 +51,7 @@ finishes.
 | Screen | Purpose |
 |---|---|
 | `DatesScreen` | "Upcoming Dates" — a card per `date_entry`, each showing its cover image, date, title, and a chronological timeline of stops (tap a stop to toggle completed). "View Complete Map" jumps to the Map tab pre-filtered to that date. |
+| `PastDatesScreen` | "Past Memories" — a scrapbook-style feed of every `date_entry` whose date has already passed, each rendered as a slightly rotated `MemoryCard` (cover image, title, date, and a category pill). Supports a title search, a horizontal row of activity-type filter chips, and a calendar icon opening `DateRangeFilterModal` to filter by a from/to date range. Reached via a "Past Memories" row in `MenuSheet` rather than a 5th bottom tab or screen-level button — kept consistent with how the app already funnels secondary destinations (Invite Partner, Reminders, Settings, Help) through that same menu. |
 | `MapScreen` | Live map (`react-native-maps`) with **numbered pins** (1, 2, 3…) in stop order, a dashed route line connecting them, a horizontal date-switcher, and a floating "current stop" detail card with a directions button. |
 | `PlanDateScreen` | Create or edit a date entry: title, date picker, and a dynamic list of stops (time, location — searched live via OpenStreetMap Nominatim or dropped as a pin on a map — and activity type). Doubles as the edit screen (pre-fills from an existing entry) with a delete option. |
 | `BucketListScreen` | Bento-grid of curated date ideas (global catalog), filterable by category, each with a "Plan This" button (prefills `PlanDateScreen`) and a checkmark badge to mark it done together. |
@@ -185,6 +186,12 @@ plain-language banner explaining why in that case.
   checkoff, notification preferences, anniversary date) autosaves immediately with optimistic
   UI and revert-on-error, rather than a deferred draft-then-save pattern — kept deliberately
   consistent app-wide rather than introducing a second interaction style for notifications.
+- **Past-date category filtering with no new schema/column**: `PastDatesScreen`'s "Dinner /
+  Outdoor / Cozy…"-style filter chips are derived entirely from each `date_entry`'s first stop's
+  existing `activity` enum (`activityLabel`/`activityIcon` in `src/theme/activityIcons.ts`)
+  rather than adding a dedicated `date_type` column — a date is "in" a category if its first
+  stop's activity matches. Chosen to avoid a migration + `PlanDateScreen` changes for what the
+  existing per-stop data already expresses well enough for filtering purposes.
 - **Migration workflow**: every schema change in this project was written as a plain SQL file
   under `supabase/migrations/`, dry-run (`supabase db push --dry-run`), applied
   (`supabase db push`), then followed by `supabase gen types typescript --linked` to keep

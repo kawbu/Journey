@@ -6,6 +6,7 @@ import MapScreen from '../screens/MapScreen';
 import BucketListScreen from '../screens/BucketListScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import PlanDateScreen from '../screens/PlanDateScreen';
+import PastDatesScreen from '../screens/PastDatesScreen';
 import TabBar from './TabBar';
 import AuthNavigator from './AuthNavigator';
 import { useAuth } from '../context/AuthContext';
@@ -38,6 +39,7 @@ export default function RootNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Tabs" component={Tabs} />
       <Stack.Screen name="PlanDate" component={PlanDateScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="PastDates" component={PastDatesScreen} />
     </Stack.Navigator>
   );
 }

@@ -17,4 +17,5 @@ export type RootStackParamList = {
   PlanDate:
     | { prefillTitle?: string; prefillActivity?: ActivityType; editDateId?: string }
     | undefined;
+  PastDates: undefined;
 };

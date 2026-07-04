@@ -19,6 +19,7 @@ interface DatesContextValue {
   getDateById: (dateId: string) => DateEntry | undefined;
   sortedStops: (entry: DateEntry) => Stop[];
   upcomingDates: DateEntry[];
+  pastDates: DateEntry[];
 }
 
 const DatesContext = createContext<DatesContextValue | undefined>(undefined);
@@ -239,6 +240,11 @@ export function DatesProvider({ children }: { children: React.ReactNode }) {
     [dates]
   );
 
+  const pastDates = useMemo(() => {
+    const todayIso = new Date().toISOString().slice(0, 10);
+    return dates.filter((d) => d.date < todayIso).sort((a, b) => b.date.localeCompare(a.date));
+  }, [dates]);
+
   const value = useMemo(
     () => ({
       dates,
@@ -250,8 +256,20 @@ export function DatesProvider({ children }: { children: React.ReactNode }) {
       getDateById,
       sortedStops,
       upcomingDates,
+      pastDates,
     }),
-    [dates, isLoaded, addDate, updateDate, removeDate, toggleStopCompleted, getDateById, sortedStops, upcomingDates]
+    [
+      dates,
+      isLoaded,
+      addDate,
+      updateDate,
+      removeDate,
+      toggleStopCompleted,
+      getDateById,
+      sortedStops,
+      upcomingDates,
+      pastDates,
+    ]
   );
 
   return <DatesContext.Provider value={value}>{children}</DatesContext.Provider>;

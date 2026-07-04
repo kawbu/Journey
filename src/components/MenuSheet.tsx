@@ -2,25 +2,31 @@ import React, { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, fonts } from '../theme/theme';
 import InvitePartnerModal from './InvitePartnerModal';
 import NotificationsSettingsModal from './NotificationsSettingsModal';
+import type { RootStackParamList } from '../navigation/types';
 
 interface MenuSheetProps {
   visible: boolean;
   onClose: () => void;
 }
 
-type ItemKey = 'invite' | 'reminders' | 'settings' | 'help';
+type ItemKey = 'invite' | 'reminders' | 'pastDates' | 'settings' | 'help';
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const items: { key: ItemKey; icon: React.ComponentProps<typeof MaterialIcons>['name']; label: string }[] = [
   { key: 'invite', icon: 'favorite', label: 'Invite Your Partner' },
   { key: 'reminders', icon: 'notifications-none', label: 'Reminders' },
+  { key: 'pastDates', icon: 'calendar-month', label: 'Past Memories' },
   { key: 'settings', icon: 'settings', label: 'Settings' },
   { key: 'help', icon: 'help-outline', label: 'Help & Feedback' },
 ];
 
 export default function MenuSheet({ visible, onClose }: MenuSheetProps) {
+  const navigation = useNavigation<Nav>();
   const [inviteVisible, setInviteVisible] = useState(false);
   const [notifVisible, setNotifVisible] = useState(false);
 
@@ -33,6 +39,11 @@ export default function MenuSheet({ visible, onClose }: MenuSheetProps) {
     if (key === 'reminders') {
       onClose();
       setNotifVisible(true);
+      return;
+    }
+    if (key === 'pastDates') {
+      onClose();
+      navigation.navigate('PastDates');
       return;
     }
     onClose();
