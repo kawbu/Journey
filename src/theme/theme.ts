@@ -1,0 +1,105 @@
+// "Twilight & Ember" design system — ported from the Stitch design tokens.
+export const colors = {
+  surface: '#fdf9f4',
+  surfaceDim: '#ddd9d5',
+  surfaceBright: '#fdf9f4',
+  surfaceContainerLowest: '#ffffff',
+  surfaceContainerLow: '#f7f3ee',
+  surfaceContainer: '#f1ede8',
+  surfaceContainerHigh: '#ebe8e3',
+  surfaceContainerHighest: '#e6e2dd',
+  onSurface: '#1c1c19',
+  onSurfaceVariant: '#55423e',
+  inverseSurface: '#31302d',
+  inverseOnSurface: '#f4f0eb',
+  outline: '#88726c',
+  outlineVariant: '#dbc1ba',
+  surfaceTint: '#9a442c',
+  primary: '#97422a',
+  onPrimary: '#ffffff',
+  primaryContainer: '#b75940',
+  onPrimaryContainer: '#fffbff',
+  inversePrimary: '#ffb5a1',
+  secondary: '#85532e',
+  onSecondary: '#ffffff',
+  secondaryContainer: '#febb8e',
+  onSecondaryContainer: '#794925',
+  tertiary: '#914350',
+  onTertiary: '#ffffff',
+  tertiaryContainer: '#af5b68',
+  onTertiaryContainer: '#fffbff',
+  error: '#ba1a1a',
+  onError: '#ffffff',
+  errorContainer: '#ffdad6',
+  onErrorContainer: '#93000a',
+  primaryFixed: '#ffdbd1',
+  primaryFixedDim: '#ffb5a1',
+  onPrimaryFixed: '#3b0900',
+  onPrimaryFixedVariant: '#7c2d17',
+  secondaryFixed: '#ffdcc6',
+  secondaryFixedDim: '#fbb88b',
+  onSecondaryFixed: '#301400',
+  onSecondaryFixedVariant: '#693c19',
+  tertiaryFixed: '#ffd9dd',
+  tertiaryFixedDim: '#ffb2bb',
+  onTertiaryFixed: '#3e0312',
+  onTertiaryFixedVariant: '#772e3c',
+  background: '#fdf9f4',
+  onBackground: '#1c1c19',
+  surfaceVariant: '#e6e2dd',
+};
+
+export const fonts = {
+  display: 'LibreCaslonText_400Regular',
+  displayItalic: 'LibreCaslonText_400Regular_Italic',
+  displayBold: 'LibreCaslonText_700Bold',
+  body: 'BeVietnamPro_400Regular',
+  bodyMedium: 'BeVietnamPro_500Medium',
+  bodySemiBold: 'BeVietnamPro_600SemiBold',
+  bodyBold: 'BeVietnamPro_700Bold',
+};
+
+export const type = {
+  display: { fontFamily: fonts.display, fontSize: 40, lineHeight: 46, letterSpacing: -0.4 },
+  headlineLg: { fontFamily: fonts.display, fontSize: 32, lineHeight: 40 },
+  headlineLgMobile: { fontFamily: fonts.display, fontSize: 28, lineHeight: 36 },
+  headlineMd: { fontFamily: fonts.display, fontSize: 24, lineHeight: 32 },
+  bodyLg: { fontFamily: fonts.body, fontSize: 18, lineHeight: 28 },
+  bodyMd: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24 },
+  labelMd: { fontFamily: fonts.bodySemiBold, fontSize: 14, lineHeight: 20, letterSpacing: 0.7 },
+  labelSm: { fontFamily: fonts.bodyMedium, fontSize: 12, lineHeight: 16, letterSpacing: 0.3 },
+};
+
+export const radii = {
+  sm: 4,
+  md: 8,
+  lg: 12,
+  xl: 16,
+  xxl: 24,
+  full: 9999,
+};
+
+export const spacing = {
+  unit: 8,
+  marginMobile: 20,
+  stackSm: 8,
+  stackMd: 16,
+  stackLg: 32,
+};
+
+export const shadows = {
+  sunsetGlow: {
+    shadowColor: '#9a442c',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 6,
+  },
+  bottomSheet: {
+    shadowColor: '#9a442c',
+    shadowOffset: { width: 0, height: -6 },
+    shadowOpacity: 0.14,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+};
