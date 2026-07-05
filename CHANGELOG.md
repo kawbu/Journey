@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/kawbu/Journey/compare/v1.0.0...v1.1.0) (2026-07-05)
+
+
+### Features
+
+* **profile:** add dark mode, profile/date-cover photos, and settings screens ([1463677](https://github.com/kawbu/Journey/commit/14636778f6012117297aff17b52a28e4d27a9657))
+
 # 1.0.0 (2026-07-04)
 
 
