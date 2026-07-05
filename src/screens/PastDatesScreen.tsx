@@ -6,7 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import MemoryCard from '../components/MemoryCard';
 import DateRangeFilterModal, { type DateRange } from '../components/DateRangeFilterModal';
-import { colors, fonts, radii, spacing } from '../theme/theme';
+import { useTheme } from '../context/ThemeContext';
+import type { Theme } from '../theme/theme';
 import { activityLabel } from '../theme/activityIcons';
 import { useDates } from '../context/DatesContext';
 import type { RootStackParamList } from '../navigation/types';
@@ -26,6 +27,8 @@ function primaryActivityFor(entry: DateEntry): ActivityType | null {
 }
 
 export default function PastDatesScreen() {
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   const navigation = useNavigation<Nav>();
   const { pastDates } = useDates();
   const [search, setSearch] = useState('');
@@ -64,7 +67,7 @@ export default function PastDatesScreen() {
       <SafeAreaView edges={['top']} style={styles.headerSafe}>
         <View style={styles.headerRow}>
           <Pressable hitSlop={10} onPress={() => navigation.goBack()} style={styles.iconButton}>
-            <MaterialIcons name="arrow-back" size={24} color={colors.primary} />
+            <MaterialIcons name="arrow-back" size={24} color={theme.colors.primary} />
           </Pressable>
           <Text style={styles.headerTitle}>Past Memories</Text>
           <View style={styles.iconButton} />
@@ -75,7 +78,7 @@ export default function PastDatesScreen() {
         data={filteredDates}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={{ height: spacing.stackMd }} />}
+        ItemSeparatorComponent={() => <View style={{ height: theme.spacing.stackMd }} />}
         ListHeaderComponent={
           <View style={styles.intro}>
             <View style={styles.introTitleRow}>
@@ -88,7 +91,7 @@ export default function PastDatesScreen() {
                 <MaterialIcons
                   name="calendar-month"
                   size={22}
-                  color={hasActiveRange ? colors.onPrimary : colors.primary}
+                  color={hasActiveRange ? theme.colors.onPrimary : theme.colors.primary}
                 />
               </Pressable>
             </View>
@@ -98,12 +101,12 @@ export default function PastDatesScreen() {
             </Text>
 
             <View style={styles.searchWrap}>
-              <MaterialIcons name="search" size={20} color={colors.outline} style={styles.searchIcon} />
+              <MaterialIcons name="search" size={20} color={theme.colors.outline} style={styles.searchIcon} />
               <TextInput
                 value={search}
                 onChangeText={setSearch}
                 placeholder="Search memories..."
-                placeholderTextColor={colors.outlineVariant}
+                placeholderTextColor={theme.colors.outlineVariant}
                 style={styles.searchInput}
               />
             </View>
@@ -139,7 +142,7 @@ export default function PastDatesScreen() {
         )}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <MaterialIcons name="auto-awesome" size={28} color={colors.outlineVariant} />
+            <MaterialIcons name="auto-awesome" size={28} color={theme.colors.outlineVariant} />
             <Text style={styles.emptyText}>
               {pastDates.length === 0
                 ? "No past dates yet — your memories will appear here once they've happened."
@@ -159,129 +162,130 @@ export default function PastDatesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  headerSafe: {
-    backgroundColor: colors.background,
-    shadowColor: colors.surfaceTint,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 4,
-    zIndex: 10,
-  },
-  headerRow: {
-    height: 56,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontFamily: fonts.display,
-    fontSize: 22,
-    color: colors.primary,
-    flex: 1,
-    textAlign: 'center',
-  },
-  listContent: {
-    paddingHorizontal: spacing.marginMobile,
-    paddingTop: spacing.stackLg,
-    paddingBottom: 40,
-  },
-  intro: {
-    marginBottom: spacing.stackLg,
-  },
-  introTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 8,
-  },
-  introTitle: {
-    fontFamily: fonts.display,
-    fontSize: 28,
-    color: colors.primary,
-    flexShrink: 1,
-  },
-  calendarButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surfaceContainerLow,
-  },
-  calendarButtonActive: {
-    backgroundColor: colors.primary,
-  },
-  introSubtitle: {
-    fontFamily: fonts.body,
-    fontSize: 15,
-    color: colors.onSurfaceVariant,
-    marginTop: 8,
-  },
-  searchWrap: {
-    marginTop: spacing.stackMd,
-    position: 'relative',
-    justifyContent: 'center',
-  },
-  searchIcon: {
-    position: 'absolute',
-    left: 14,
-    zIndex: 1,
-  },
-  searchInput: {
-    backgroundColor: colors.surfaceContainerLow,
-    borderRadius: radii.full,
-    paddingVertical: 10,
-    paddingLeft: 40,
-    paddingRight: 16,
-    fontFamily: fonts.body,
-    fontSize: 15,
-    color: colors.onSurface,
-  },
-  chipRow: {
-    gap: 8,
-    marginTop: spacing.stackSm,
-  },
-  chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: radii.full,
-    backgroundColor: colors.secondaryContainer,
-  },
-  chipActive: {
-    backgroundColor: colors.secondary,
-  },
-  chipText: {
-    fontFamily: fonts.bodySemiBold,
-    fontSize: 12,
-    color: colors.onSecondaryContainer,
-  },
-  chipTextActive: {
-    color: colors.onSecondary,
-  },
-  empty: {
-    paddingVertical: 60,
-    alignItems: 'center',
-    gap: 12,
-  },
-  emptyText: {
-    fontFamily: fonts.body,
-    fontSize: 15,
-    color: colors.onSurfaceVariant,
-    textAlign: 'center',
-    paddingHorizontal: 30,
-  },
-});
+const makeStyles = (theme: Theme) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    headerSafe: {
+      backgroundColor: theme.colors.background,
+      shadowColor: theme.colors.surfaceTint,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.08,
+      shadowRadius: 20,
+      elevation: 4,
+      zIndex: 10,
+    },
+    headerRow: {
+      height: 56,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+    },
+    iconButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    headerTitle: {
+      fontFamily: theme.fonts.display,
+      fontSize: 22,
+      color: theme.colors.primary,
+      flex: 1,
+      textAlign: 'center',
+    },
+    listContent: {
+      paddingHorizontal: theme.spacing.marginMobile,
+      paddingTop: theme.spacing.stackLg,
+      paddingBottom: 40,
+    },
+    intro: {
+      marginBottom: theme.spacing.stackLg,
+    },
+    introTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 8,
+    },
+    introTitle: {
+      fontFamily: theme.fonts.display,
+      fontSize: 28,
+      color: theme.colors.primary,
+      flexShrink: 1,
+    },
+    calendarButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.colors.surfaceContainerLow,
+    },
+    calendarButtonActive: {
+      backgroundColor: theme.colors.primary,
+    },
+    introSubtitle: {
+      fontFamily: theme.fonts.body,
+      fontSize: 15,
+      color: theme.colors.onSurfaceVariant,
+      marginTop: 8,
+    },
+    searchWrap: {
+      marginTop: theme.spacing.stackMd,
+      position: 'relative',
+      justifyContent: 'center',
+    },
+    searchIcon: {
+      position: 'absolute',
+      left: 14,
+      zIndex: 1,
+    },
+    searchInput: {
+      backgroundColor: theme.colors.surfaceContainerLow,
+      borderRadius: theme.radii.full,
+      paddingVertical: 10,
+      paddingLeft: 40,
+      paddingRight: 16,
+      fontFamily: theme.fonts.body,
+      fontSize: 15,
+      color: theme.colors.onSurface,
+    },
+    chipRow: {
+      gap: 8,
+      marginTop: theme.spacing.stackSm,
+    },
+    chip: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: theme.radii.full,
+      backgroundColor: theme.colors.secondaryContainer,
+    },
+    chipActive: {
+      backgroundColor: theme.colors.secondary,
+    },
+    chipText: {
+      fontFamily: theme.fonts.bodySemiBold,
+      fontSize: 12,
+      color: theme.colors.onSecondaryContainer,
+    },
+    chipTextActive: {
+      color: theme.colors.onSecondary,
+    },
+    empty: {
+      paddingVertical: 60,
+      alignItems: 'center',
+      gap: 12,
+    },
+    emptyText: {
+      fontFamily: theme.fonts.body,
+      fontSize: 15,
+      color: theme.colors.onSurfaceVariant,
+      textAlign: 'center',
+      paddingHorizontal: 30,
+    },
+  });

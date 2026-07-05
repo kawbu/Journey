@@ -2,7 +2,8 @@
 
 A native mobile app for couples to plan dates together — a shared, chronological itinerary of
 full-day dates (each made of multiple timed stops), a live map with numbered pins, a shared
-bucket list, and notifications to keep both partners in sync.
+bucket list, notifications to keep both partners in sync, profile/date-cover photos, and full
+light/dark mode support.
 
 Built with **Expo (React Native) + TypeScript**, backed by **Supabase** (Postgres + Auth +
 Realtime).
@@ -54,6 +55,10 @@ npx supabase link --project-ref <your-project-ref>
 npx supabase db push        # applies all migrations in supabase/migrations/
 npx supabase db push --include-seed   # also seeds the bucket-list catalog (supabase/seed.sql)
 ```
+
+Migrations also create two public Storage buckets, `avatars` and `date-covers` (for profile
+pictures and date cover photos), with RLS policies scoping uploads to their owner/journey — no
+separate manual Storage setup needed.
 
 After any future schema change, regenerate the TypeScript types so the client stays in sync
 with the real database:
@@ -108,3 +113,5 @@ exactly what happens on release — don't hand-edit version numbers or `CHANGELO
   configuration.
 - **A journey is capped at exactly two members**, enforced at the database level — this is a
   couples app by design.
+- **"Journey+" is a UI-only paywall stub** — no billing/subscription integration exists behind
+  it yet.

@@ -8,7 +8,8 @@ import AppHeader from '../components/AppHeader';
 import MenuSheet from '../components/MenuSheet';
 import MapPin from '../components/MapPin';
 import StopDetailCard from '../components/StopDetailCard';
-import { colors, fonts, radii } from '../theme/theme';
+import { useTheme } from '../context/ThemeContext';
+import type { Theme } from '../theme/theme';
 import { useDates } from '../context/DatesContext';
 import type { RootStackParamList, TabParamList } from '../navigation/types';
 import { formatFriendlyDate } from '../utils/format';
@@ -36,11 +37,23 @@ function regionFromCoords(coords: { latitude: number; longitude: number }[]): Re
 export default function MapScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<MapRoute>();
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   const { upcomingDates, sortedStops } = useDates();
   const mapRef = useRef<MapView>(null);
   const [menuVisible, setMenuVisible] = useState(false);
+
+  const todayIso = useMemo(() => new Date().toISOString().slice(0, 10), []);
+
+  // Prefer the soonest date that hasn't happened yet; if every date is in
+  // the past, fall back to the most recent one so the map isn't blank.
+  const defaultDateId = useMemo(() => {
+    const future = upcomingDates.find((d) => d.date >= todayIso);
+    return future?.id ?? upcomingDates[upcomingDates.length - 1]?.id;
+  }, [upcomingDates, todayIso]);
+
   const [selectedDateId, setSelectedDateId] = useState<string | undefined>(
-    route.params?.dateId ?? upcomingDates[0]?.id
+    route.params?.dateId ?? defaultDateId
   );
   const [selectedStopId, setSelectedStopId] = useState<string | undefined>(undefined);
 
@@ -51,8 +64,8 @@ export default function MapScreen() {
   }, [route.params?.dateId]);
 
   const activeDate = useMemo(
-    () => upcomingDates.find((d) => d.id === selectedDateId) ?? upcomingDates[0],
-    [upcomingDates, selectedDateId]
+    () => upcomingDates.find((d) => d.id === selectedDateId) ?? upcomingDates.find((d) => d.id === defaultDateId),
+    [upcomingDates, selectedDateId, defaultDateId]
   );
 
   const stops = useMemo(() => (activeDate ? sortedStops(activeDate) : []), [activeDate, sortedStops]);
@@ -89,16 +102,17 @@ export default function MapScreen() {
       >
         {upcomingDates.map((d) => {
           const active = d.id === activeDate?.id;
+          const isPast = d.date < todayIso;
           return (
             <Pressable
               key={d.id}
               onPress={() => setSelectedDateId(d.id)}
-              style={[styles.dateChip, active && styles.dateChipActive]}
+              style={[styles.dateChip, isPast && styles.dateChipPast, active && styles.dateChipActive]}
             >
-              <Text style={[styles.dateChipText, active && styles.dateChipTextActive]} numberOfLines={1}>
+              <Text style={[styles.dateChipText, isPast && styles.dateChipTextPast, active && styles.dateChipTextActive]} numberOfLines={1}>
                 {d.title}
               </Text>
-              <Text style={[styles.dateChipSubtext, active && styles.dateChipTextActive]}>
+              <Text style={[styles.dateChipSubtext, isPast && styles.dateChipTextPast, active && styles.dateChipTextActive]}>
                 {formatFriendlyDate(d.date)}
               </Text>
             </Pressable>
@@ -115,7 +129,7 @@ export default function MapScreen() {
           >
             <Polyline
               coordinates={stops.map((s) => s.location)}
-              strokeColor={colors.primary}
+              strokeColor={theme.colors.primary}
               strokeWidth={3}
               lineDashPattern={[8, 8]}
             />
@@ -158,67 +172,75 @@ export default function MapScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  dateSwitcher: {
-    flexGrow: 0,
-    backgroundColor: colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.surfaceContainerHigh,
-  },
-  dateSwitcherContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    gap: 10,
-  },
-  dateChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: radii.lg,
-    backgroundColor: colors.surfaceContainerHigh,
-    marginRight: 10,
-    minWidth: 140,
-  },
-  dateChipActive: {
-    backgroundColor: colors.primary,
-  },
-  dateChipText: {
-    fontFamily: fonts.bodySemiBold,
-    fontSize: 13,
-    color: colors.onSurface,
-  },
-  dateChipSubtext: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 11,
-    color: colors.onSurfaceVariant,
-    marginTop: 1,
-  },
-  dateChipTextActive: {
-    color: colors.onPrimary,
-  },
-  mapWrap: {
-    flex: 1,
-  },
-  emptyState: {
-    ...StyleSheet.absoluteFill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surfaceContainerHigh,
-    paddingHorizontal: 40,
-  },
-  emptyText: {
-    fontFamily: fonts.body,
-    fontSize: 16,
-    color: colors.onSurfaceVariant,
-    textAlign: 'center',
-  },
-  detailCardWrap: {
-    position: 'absolute',
-    left: 16,
-    right: 16,
-    bottom: 16,
-  },
-});
+const makeStyles = (theme: Theme) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    dateSwitcher: {
+      flexGrow: 0,
+      backgroundColor: theme.colors.background,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.surfaceContainerHigh,
+    },
+    dateSwitcherContent: {
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      gap: 10,
+    },
+    dateChip: {
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: theme.radii.lg,
+      backgroundColor: theme.colors.surfaceContainerHigh,
+      marginRight: 10,
+      minWidth: 140,
+    },
+    dateChipPast: {
+      opacity: 0.5,
+    },
+    dateChipActive: {
+      backgroundColor: theme.colors.primary,
+      opacity: 1,
+    },
+    dateChipTextPast: {
+      color: theme.colors.outline,
+    },
+    dateChipText: {
+      fontFamily: theme.fonts.bodySemiBold,
+      fontSize: 13,
+      color: theme.colors.onSurface,
+    },
+    dateChipSubtext: {
+      fontFamily: theme.fonts.bodyMedium,
+      fontSize: 11,
+      color: theme.colors.onSurfaceVariant,
+      marginTop: 1,
+    },
+    dateChipTextActive: {
+      color: theme.colors.onPrimary,
+    },
+    mapWrap: {
+      flex: 1,
+    },
+    emptyState: {
+      ...StyleSheet.absoluteFill,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.colors.surfaceContainerHigh,
+      paddingHorizontal: 40,
+    },
+    emptyText: {
+      fontFamily: theme.fonts.body,
+      fontSize: 16,
+      color: theme.colors.onSurfaceVariant,
+      textAlign: 'center',
+    },
+    detailCardWrap: {
+      position: 'absolute',
+      left: 16,
+      right: 16,
+      bottom: 16,
+    },
+  });

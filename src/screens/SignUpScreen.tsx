@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -13,13 +13,16 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AuthTextField from '../components/AuthTextField';
-import { colors, fonts, radii, shadows, spacing } from '../theme/theme';
+import { useTheme } from '../context/ThemeContext';
+import type { Theme } from '../theme/theme';
 import { useAuth } from '../context/AuthContext';
 import type { AuthStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<AuthStackParamList, 'SignUp'>;
 
 export default function SignUpScreen() {
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   const navigation = useNavigation<Nav>();
   const { signUp } = useAuth();
 
@@ -107,7 +110,7 @@ export default function SignUpScreen() {
             <Text style={styles.primaryButtonText}>
               {submitting ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'}
             </Text>
-            {!submitting && <MaterialIcons name="arrow-forward" size={18} color={colors.onPrimary} />}
+            {!submitting && <MaterialIcons name="arrow-forward" size={18} color={theme.colors.onPrimary} />}
           </Pressable>
 
           <View style={styles.signInRow}>
@@ -122,93 +125,94 @@ export default function SignUpScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.marginMobile,
-    paddingTop: 72,
-    paddingBottom: 48,
-  },
-  wordmarkBlock: {
-    alignItems: 'center',
-    marginBottom: spacing.stackLg,
-  },
-  wordmark: {
-    fontFamily: fonts.display,
-    fontSize: 34,
-    color: colors.primary,
-    textAlign: 'center',
-  },
-  tagline: {
-    fontFamily: fonts.body,
-    fontStyle: 'italic',
-    fontSize: 16,
-    color: colors.onSurfaceVariant,
-    marginTop: 8,
-    textAlign: 'center',
-  },
-  card: {
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: radii.xxl,
-    padding: 28,
-    ...shadows.sunsetGlow,
-  },
-  headline: {
-    fontFamily: fonts.display,
-    fontSize: 28,
-    color: colors.onSurface,
-  },
-  subtext: {
-    fontFamily: fonts.body,
-    fontSize: 16,
-    color: colors.onSurfaceVariant,
-    marginTop: 6,
-    marginBottom: spacing.stackLg,
-  },
-  fields: {
-    gap: 20,
-  },
-  errorText: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 13,
-    color: colors.error,
-    marginTop: -8,
-  },
-  primaryButton: {
-    marginTop: spacing.stackLg,
-    backgroundColor: colors.primary,
-    borderRadius: radii.full,
-    paddingVertical: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  primaryButtonDisabled: {
-    opacity: 0.7,
-  },
-  primaryButtonText: {
-    fontFamily: fonts.bodySemiBold,
-    fontSize: 14,
-    color: colors.onPrimary,
-    letterSpacing: 0.8,
-  },
-  signInRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 28,
-  },
-  signInText: {
-    fontFamily: fonts.body,
-    fontSize: 15,
-    color: colors.onSurfaceVariant,
-  },
-  signInLink: {
-    fontFamily: fonts.bodyBold,
-    fontSize: 15,
-    color: colors.primary,
-  },
-});
+const makeStyles = (theme: Theme) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    scrollContent: {
+      paddingHorizontal: theme.spacing.marginMobile,
+      paddingTop: 72,
+      paddingBottom: 48,
+    },
+    wordmarkBlock: {
+      alignItems: 'center',
+      marginBottom: theme.spacing.stackLg,
+    },
+    wordmark: {
+      fontFamily: theme.fonts.display,
+      fontSize: 34,
+      color: theme.colors.primary,
+      textAlign: 'center',
+    },
+    tagline: {
+      fontFamily: theme.fonts.body,
+      fontStyle: 'italic',
+      fontSize: 16,
+      color: theme.colors.onSurfaceVariant,
+      marginTop: 8,
+      textAlign: 'center',
+    },
+    card: {
+      backgroundColor: theme.colors.surfaceContainerLowest,
+      borderRadius: theme.radii.xxl,
+      padding: 28,
+      ...theme.shadows.sunsetGlow,
+    },
+    headline: {
+      fontFamily: theme.fonts.display,
+      fontSize: 28,
+      color: theme.colors.onSurface,
+    },
+    subtext: {
+      fontFamily: theme.fonts.body,
+      fontSize: 16,
+      color: theme.colors.onSurfaceVariant,
+      marginTop: 6,
+      marginBottom: theme.spacing.stackLg,
+    },
+    fields: {
+      gap: 20,
+    },
+    errorText: {
+      fontFamily: theme.fonts.bodyMedium,
+      fontSize: 13,
+      color: theme.colors.error,
+      marginTop: -8,
+    },
+    primaryButton: {
+      marginTop: theme.spacing.stackLg,
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.radii.full,
+      paddingVertical: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+    },
+    primaryButtonDisabled: {
+      opacity: 0.7,
+    },
+    primaryButtonText: {
+      fontFamily: theme.fonts.bodySemiBold,
+      fontSize: 14,
+      color: theme.colors.onPrimary,
+      letterSpacing: 0.8,
+    },
+    signInRow: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      marginTop: 28,
+    },
+    signInText: {
+      fontFamily: theme.fonts.body,
+      fontSize: 15,
+      color: theme.colors.onSurfaceVariant,
+    },
+    signInLink: {
+      fontFamily: theme.fonts.bodyBold,
+      fontSize: 15,
+      color: theme.colors.primary,
+    },
+  });

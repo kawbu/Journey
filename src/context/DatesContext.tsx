@@ -20,6 +20,7 @@ interface DatesContextValue {
   sortedStops: (entry: DateEntry) => Stop[];
   upcomingDates: DateEntry[];
   pastDates: DateEntry[];
+  strictlyUpcomingDates: DateEntry[];
 }
 
 const DatesContext = createContext<DatesContextValue | undefined>(undefined);
@@ -245,6 +246,15 @@ export function DatesProvider({ children }: { children: React.ReactNode }) {
     return dates.filter((d) => d.date < todayIso).sort((a, b) => b.date.localeCompare(a.date));
   }, [dates]);
 
+  // Same as upcomingDates, but excludes dates that have already passed — used
+  // by the "Upcoming Dates" list screen. upcomingDates itself stays
+  // unfiltered because MapScreen relies on being able to show/select past
+  // dates' maps too.
+  const strictlyUpcomingDates = useMemo(() => {
+    const todayIso = new Date().toISOString().slice(0, 10);
+    return dates.filter((d) => d.date >= todayIso).sort((a, b) => a.date.localeCompare(b.date));
+  }, [dates]);
+
   const value = useMemo(
     () => ({
       dates,
@@ -257,6 +267,7 @@ export function DatesProvider({ children }: { children: React.ReactNode }) {
       sortedStops,
       upcomingDates,
       pastDates,
+      strictlyUpcomingDates,
     }),
     [
       dates,
@@ -269,6 +280,7 @@ export function DatesProvider({ children }: { children: React.ReactNode }) {
       sortedStops,
       upcomingDates,
       pastDates,
+      strictlyUpcomingDates,
     ]
   );
 

@@ -1,9 +1,9 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { useFonts as useLibreCaslonFonts, LibreCaslonText_400Regular, LibreCaslonText_400Regular_Italic, LibreCaslonText_700Bold } from '@expo-google-fonts/libre-caslon-text';
 import {
   useFonts as useBeVietnamFonts,
@@ -17,19 +17,43 @@ import { AuthProvider } from './src/context/AuthContext';
 import { BucketListProvider } from './src/context/BucketListContext';
 import { NotificationsProvider } from './src/context/NotificationsContext';
 import { DatesProvider } from './src/context/DatesContext';
-import { colors } from './src/theme/theme';
+import { ThemeProvider, useThemeSettings } from './src/context/ThemeContext';
 
-const navigationTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: colors.background,
-    card: colors.background,
-    primary: colors.primary,
-    text: colors.onSurface,
-    border: colors.outlineVariant,
-  },
-};
+function AppContent() {
+  const { theme, scheme, isLoaded: themeLoaded } = useThemeSettings();
+
+  const navigationTheme = useMemo(() => {
+    const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      colors: {
+        ...base.colors,
+        background: theme.colors.background,
+        card: theme.colors.background,
+        primary: theme.colors.primary,
+        text: theme.colors.onSurface,
+        border: theme.colors.outlineVariant,
+      },
+    };
+  }, [theme, scheme]);
+
+  if (!themeLoaded) return null;
+
+  return (
+    <AuthProvider>
+      <BucketListProvider>
+        <NotificationsProvider>
+          <DatesProvider>
+            <NavigationContainer theme={navigationTheme}>
+              <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+              <RootNavigator />
+            </NavigationContainer>
+          </DatesProvider>
+        </NotificationsProvider>
+      </BucketListProvider>
+    </AuthProvider>
+  );
+}
 
 export default function App() {
   const [libreLoaded] = useLibreCaslonFonts({
@@ -51,18 +75,9 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <AuthProvider>
-          <BucketListProvider>
-            <NotificationsProvider>
-              <DatesProvider>
-                <NavigationContainer theme={navigationTheme}>
-                  <StatusBar style="dark" />
-                  <RootNavigator />
-                </NavigationContainer>
-              </DatesProvider>
-            </NotificationsProvider>
-          </BucketListProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AppContent />
+        </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

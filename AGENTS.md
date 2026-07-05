@@ -80,12 +80,59 @@ didn't explicitly ask for.** Ask the user to paste them, or have them add to `.e
 - **Location search** (`PlanDateScreen`'s "set pin on map") uses OpenStreetMap Nominatim, not
   Google Places — deliberately, to avoid requiring API keys/billing for a personal project.
   Don't swap this for a paid provider without checking with the user first.
+- **Supabase Storage RLS needs a `select` policy, not just insert/update/delete.** The original
+  `storage_buckets` migration omitted one and uploads failed with "new row violates row-level
+  security policy" — `upsert`'s existence check (and reading back what you just wrote) needs
+  read access too. Fixed in `fix_storage_policies.sql`; any new bucket/policy set needs all four
+  (`select`/`insert`/`update`/`delete`), each scoped `to authenticated`.
+
+## Committing & releases
+
+Commit messages **must** follow [Conventional Commits](https://www.conventionalcommits.org/)
+(`type(scope): subject`, e.g. `feat(dates): add past dates screen`, `fix(ci): bump node
+version`) — a `commitlint` + `husky` `commit-msg` hook rejects anything else at commit time.
+`docs`/`chore`/`refactor`/`style`/`test`/`ci` don't trigger a release; `fix` bumps patch, `feat`
+bumps minor, a `BREAKING CHANGE:` footer bumps major. See `CONTRIBUTING.md` for the full type
+table and examples.
+
+Every push to `main` runs `.github/workflows/release.yml`, which invokes `semantic-release`
+(config in `.releaserc.json`). It computes the next version from commit history, regenerates
+`CHANGELOG.md`, syncs the version into `package.json` and `app.json`'s `expo.version`
+(`scripts/sync-version.js`), tags the commit, and publishes a GitHub Release — **fully
+automated, with no human/agent step in between**. Practical implications:
+
+- **Never hand-edit** the `version` field in `package.json`/`app.json`, and never hand-write
+  new `CHANGELOG.md` entries above the `## History` heading — the next push to `main` overwrites
+  them.
+- Every commit you create in this repo, including one-line fixes, must use a real Conventional
+  Commit type — don't write a plain-English message "to keep it quick," since the hook will
+  reject it anyway.
+- Pushing to `main` is not inert: if the commit's type warrants a release (`feat`/`fix`/etc.),
+  it will actually tag and publish a GitHub Release. Don't push to `main` on this repo's behalf
+  without the user's go-ahead, same as any other action with an externally-visible effect.
+- To preview what a push would do without side effects: `npx semantic-release --dry-run` (needs
+  a `GITHUB_TOKEN` env var to fully validate, but will correctly report the computed version and
+  changelog before failing on the auth check).
 
 ## Design system
 
 `src/theme/theme.ts` is the only source of colors/fonts/spacing/radii/shadows — never hardcode
-a hex color or font size in a component; add a token if one doesn't exist. Icons are
-`MaterialIcons` from `@expo/vector-icons` everywhere except the Google "G" mark on the login
-screen (`MaterialCommunityIcons`'s `google` glyph). Before using a new icon name, grep
+a hex color or font size in a component; add a token if one doesn't exist. The app supports
+light/dark mode: `theme.ts` exports `lightTheme`/`darkTheme` (same shape, different `colors`/
+`shadows`), and components read the active one via `useTheme()` from `src/context/ThemeContext.tsx`
+— never `import { colors } from '../theme/theme'` directly in a component, since that's always
+light mode regardless of the user's preference. If you add a new color token, add it to **both**
+`lightColors` and `darkColors` (matching keys), not just one. Icons are `MaterialIcons` from
+`@expo/vector-icons` everywhere except the Google "G" mark on the login screen
+(`MaterialCommunityIcons`'s `google` glyph). Before using a new icon name, grep
 `node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/glyphmaps/MaterialIcons.json`
 to confirm it exists — don't guess.
+
+## Photo uploads
+
+Profile avatars and per-date cover photos both go through `src/lib/imageUpload.ts`'s
+`pickAndUploadImage(bucket, path)` — pick, downscale/compress, upload to Supabase Storage,
+return a public URL (or `null`, never a throw). Reuse this helper for any new photo-upload
+surface rather than re-implementing the pick/compress/upload sequence; if you need a new bucket,
+add it under `UploadBucket` and give it the same four-policy (`select`/`insert`/`update`/
+`delete`) RLS treatment described above.

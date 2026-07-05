@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors, fonts, radii, shadows } from '../theme/theme';
+import { useTheme } from '../context/ThemeContext';
+import type { Theme } from '../theme/theme';
 import { activityIcon, activityLabel } from '../theme/activityIcons';
 import { formatFriendlyDate } from '../utils/format';
 import type { ActivityType, DateEntry } from '../types';
@@ -14,6 +15,8 @@ interface MemoryCardProps {
 }
 
 export default function MemoryCard({ entry, primaryActivity, rotation, onPress }: MemoryCardProps) {
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   return (
     <Pressable
       style={({ pressed }) => [
@@ -27,13 +30,13 @@ export default function MemoryCard({ entry, primaryActivity, rotation, onPress }
           <Image source={{ uri: entry.coverImage }} style={styles.image} />
         ) : (
           <View style={[styles.image, styles.imageFallback]}>
-            <MaterialIcons name="photo" size={32} color={colors.outlineVariant} />
+            <MaterialIcons name="photo" size={32} color={theme.colors.outlineVariant} />
           </View>
         )}
         <View style={styles.imageOverlay} />
         {primaryActivity && (
           <View style={styles.pill}>
-            <MaterialIcons name={activityIcon[primaryActivity]} size={12} color={colors.primary} />
+            <MaterialIcons name={activityIcon[primaryActivity]} size={12} color={theme.colors.primary} />
             <Text style={styles.pillText}>{activityLabel[primaryActivity]}</Text>
           </View>
         )}
@@ -43,7 +46,7 @@ export default function MemoryCard({ entry, primaryActivity, rotation, onPress }
           {entry.title}
         </Text>
         <View style={styles.dateRow}>
-          <MaterialIcons name="calendar-today" size={12} color={colors.outline} />
+          <MaterialIcons name="calendar-today" size={12} color={theme.colors.outline} />
           <Text style={styles.dateText}>{formatFriendlyDate(entry.date)}</Text>
         </View>
       </View>
@@ -51,20 +54,20 @@ export default function MemoryCard({ entry, primaryActivity, rotation, onPress }
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   card: {
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: radii.xl,
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderRadius: theme.radii.xl,
     padding: 12,
     gap: 10,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
-    ...shadows.sunsetGlow,
+    borderColor: theme.colors.outlineVariant,
+    ...theme.shadows.sunsetGlow,
   },
   imageWrap: {
     width: '100%',
     aspectRatio: 4 / 3,
-    borderRadius: radii.lg,
+    borderRadius: theme.radii.lg,
     overflow: 'hidden',
   },
   image: {
@@ -72,7 +75,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   imageFallback: {
-    backgroundColor: colors.surfaceContainerHigh,
+    backgroundColor: theme.colors.surfaceContainerHigh,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -90,12 +93,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.85)',
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: radii.full,
+    borderRadius: theme.radii.full,
   },
   pillText: {
-    fontFamily: fonts.bodySemiBold,
+    fontFamily: theme.fonts.bodySemiBold,
     fontSize: 11,
-    color: colors.primary,
+    color: theme.colors.primary,
   },
   body: {
     paddingHorizontal: 4,
@@ -103,9 +106,9 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   title: {
-    fontFamily: fonts.display,
+    fontFamily: theme.fonts.display,
     fontSize: 18,
-    color: colors.onSurface,
+    color: theme.colors.onSurface,
   },
   dateRow: {
     flexDirection: 'row',
@@ -113,8 +116,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   dateText: {
-    fontFamily: fonts.bodyMedium,
+    fontFamily: theme.fonts.bodyMedium,
     fontSize: 12,
-    color: colors.outline,
+    color: theme.colors.outline,
   },
 });

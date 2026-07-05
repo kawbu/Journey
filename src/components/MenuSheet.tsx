@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors, fonts } from '../theme/theme';
+import { useTheme } from '../context/ThemeContext';
+import type { Theme } from '../theme/theme';
 import InvitePartnerModal from './InvitePartnerModal';
 import NotificationsSettingsModal from './NotificationsSettingsModal';
 import type { RootStackParamList } from '../navigation/types';
@@ -26,6 +27,8 @@ const items: { key: ItemKey; icon: React.ComponentProps<typeof MaterialIcons>['n
 ];
 
 export default function MenuSheet({ visible, onClose }: MenuSheetProps) {
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   const navigation = useNavigation<Nav>();
   const [inviteVisible, setInviteVisible] = useState(false);
   const [notifVisible, setNotifVisible] = useState(false);
@@ -46,6 +49,16 @@ export default function MenuSheet({ visible, onClose }: MenuSheetProps) {
       navigation.navigate('PastDates');
       return;
     }
+    if (key === 'settings') {
+      onClose();
+      navigation.navigate('Settings');
+      return;
+    }
+    if (key === 'help') {
+      onClose();
+      navigation.navigate('HelpFeedback');
+      return;
+    }
     onClose();
   };
 
@@ -60,7 +73,7 @@ export default function MenuSheet({ visible, onClose }: MenuSheetProps) {
               <View style={styles.divider} />
               {items.map((item) => (
                 <Pressable key={item.key} style={styles.row} onPress={() => handlePress(item.key)}>
-                  <MaterialIcons name={item.icon} size={20} color={colors.primary} />
+                  <MaterialIcons name={item.icon} size={20} color={theme.colors.primary} />
                   <Text style={styles.rowLabel}>{item.label}</Text>
                 </Pressable>
               ))}
@@ -74,7 +87,7 @@ export default function MenuSheet({ visible, onClose }: MenuSheetProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(28,28,25,0.35)',
@@ -86,26 +99,26 @@ const styles = StyleSheet.create({
   },
   panel: {
     flex: 1,
-    backgroundColor: colors.surface,
+    backgroundColor: theme.colors.surface,
     paddingHorizontal: 24,
     paddingTop: 16,
   },
   brand: {
-    fontFamily: fonts.display,
+    fontFamily: theme.fonts.display,
     fontSize: 24,
-    color: colors.primary,
+    color: theme.colors.primary,
     marginTop: 12,
   },
   tagline: {
-    fontFamily: fonts.body,
+    fontFamily: theme.fonts.body,
     fontSize: 14,
-    color: colors.onSurfaceVariant,
+    color: theme.colors.onSurfaceVariant,
     marginTop: 6,
     fontStyle: 'italic',
   },
   divider: {
     height: 1,
-    backgroundColor: colors.outlineVariant,
+    backgroundColor: theme.colors.outlineVariant,
     opacity: 0.4,
     marginVertical: 20,
   },
@@ -116,8 +129,8 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   rowLabel: {
-    fontFamily: fonts.bodyMedium,
+    fontFamily: theme.fonts.bodyMedium,
     fontSize: 16,
-    color: colors.onSurface,
+    color: theme.colors.onSurface,
   },
 });

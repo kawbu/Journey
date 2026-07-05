@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Modal,
@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import PickerField from './PickerField';
-import { colors, fonts, radii, shadows } from '../theme/theme';
+import { useTheme } from '../context/ThemeContext';
+import type { Theme } from '../theme/theme';
 import { useAuth } from '../context/AuthContext';
 import { friendlyNameFromEmail } from '../utils/format';
 
@@ -22,6 +23,8 @@ interface InvitePartnerModalProps {
 }
 
 export default function InvitePartnerModal({ visible, onClose }: InvitePartnerModalProps) {
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   const { partner, isPartnered, createInvite, redeemInvite, refreshJourney, anniversaryDate, updateAnniversaryDate } =
     useAuth();
   const partnerName = partner
@@ -95,7 +98,7 @@ export default function InvitePartnerModal({ visible, onClose }: InvitePartnerMo
       <View style={styles.container}>
         <View style={styles.header}>
           <Pressable hitSlop={10} onPress={onClose} style={styles.headerButton}>
-            <MaterialIcons name="close" size={22} color={colors.primary} />
+            <MaterialIcons name="close" size={22} color={theme.colors.primary} />
           </Pressable>
           <Text style={styles.headerTitle}>Relationship Details</Text>
           <View style={styles.headerButton} />
@@ -107,7 +110,7 @@ export default function InvitePartnerModal({ visible, onClose }: InvitePartnerMo
             <Text style={styles.cardSubtitle}>The day that started it all — we'll help you celebrate it.</Text>
             <PickerField mode="date" value={anniversaryDateValue} onChange={handleAnniversaryChange}>
               <View style={styles.anniversaryRow}>
-                <MaterialIcons name="cake" size={18} color={colors.primary} />
+                <MaterialIcons name="cake" size={18} color={theme.colors.primary} />
                 <Text style={styles.anniversaryText}>
                   {anniversaryDate
                     ? anniversaryDateValue.toLocaleDateString('en-US', {
@@ -124,7 +127,7 @@ export default function InvitePartnerModal({ visible, onClose }: InvitePartnerMo
 
           {isPartnered ? (
             <View style={styles.partneredCard}>
-              <MaterialIcons name="favorite" size={28} color={colors.primary} />
+              <MaterialIcons name="favorite" size={28} color={theme.colors.primary} />
               <Text style={styles.partneredTitle}>You're sharing your journey with</Text>
               <Text style={styles.partneredName}>{partnerName}</Text>
               <Text style={styles.partneredHint}>Every date you plan together shows up for both of you.</Text>
@@ -144,12 +147,12 @@ export default function InvitePartnerModal({ visible, onClose }: InvitePartnerMo
                       <Text style={styles.codeText}>{code}</Text>
                     </View>
                     <Pressable style={styles.primaryButton} onPress={handleShare}>
-                      <MaterialIcons name="ios-share" size={18} color={colors.onPrimary} />
+                      <MaterialIcons name="ios-share" size={18} color={theme.colors.onPrimary} />
                       <Text style={styles.primaryButtonText}>SHARE INVITE</Text>
                     </Pressable>
                     <Pressable style={styles.secondaryButton} onPress={handleCheckStatus} disabled={checking}>
                       {checking ? (
-                        <ActivityIndicator size="small" color={colors.primary} />
+                        <ActivityIndicator size="small" color={theme.colors.primary} />
                       ) : (
                         <Text style={styles.secondaryButtonText}>Check if they've joined</Text>
                       )}
@@ -158,7 +161,7 @@ export default function InvitePartnerModal({ visible, onClose }: InvitePartnerMo
                 ) : (
                   <Pressable style={styles.primaryButton} onPress={handleGenerate} disabled={generating}>
                     {generating ? (
-                      <ActivityIndicator size="small" color={colors.onPrimary} />
+                      <ActivityIndicator size="small" color={theme.colors.onPrimary} />
                     ) : (
                       <Text style={styles.primaryButtonText}>GENERATE INVITE CODE</Text>
                     )}
@@ -179,7 +182,7 @@ export default function InvitePartnerModal({ visible, onClose }: InvitePartnerMo
                 <TextInput
                   style={styles.input}
                   placeholder="e.g. 7F3KQ2"
-                  placeholderTextColor={colors.outlineVariant}
+                  placeholderTextColor={theme.colors.outlineVariant}
                   value={joinCode}
                   onChangeText={(text) => {
                     setJoinCode(text);
@@ -191,7 +194,7 @@ export default function InvitePartnerModal({ visible, onClose }: InvitePartnerMo
                 {joinError && <Text style={styles.errorText}>{joinError}</Text>}
                 <Pressable style={styles.primaryButton} onPress={handleJoin} disabled={joining}>
                   {joining ? (
-                    <ActivityIndicator size="small" color={colors.onPrimary} />
+                    <ActivityIndicator size="small" color={theme.colors.onPrimary} />
                   ) : (
                     <Text style={styles.primaryButtonText}>JOIN THEIR JOURNEY</Text>
                   )}
@@ -205,10 +208,10 @@ export default function InvitePartnerModal({ visible, onClose }: InvitePartnerMo
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: theme.colors.background,
     paddingTop: 56,
   },
   header: {
@@ -225,78 +228,78 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: fonts.display,
+    fontFamily: theme.fonts.display,
     fontSize: 20,
-    color: colors.primary,
+    color: theme.colors.primary,
   },
   content: {
     paddingHorizontal: 20,
     gap: 20,
   },
   card: {
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: radii.xxl,
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderRadius: theme.radii.xxl,
     padding: 24,
     gap: 14,
-    ...shadows.sunsetGlow,
+    ...theme.shadows.sunsetGlow,
   },
   cardTitle: {
-    fontFamily: fonts.display,
+    fontFamily: theme.fonts.display,
     fontSize: 22,
-    color: colors.onSurface,
+    color: theme.colors.onSurface,
   },
   cardSubtitle: {
-    fontFamily: fonts.body,
+    fontFamily: theme.fonts.body,
     fontSize: 14,
-    color: colors.onSurfaceVariant,
+    color: theme.colors.onSurfaceVariant,
     marginTop: -6,
   },
   codeBox: {
-    backgroundColor: colors.surfaceContainerLow,
-    borderRadius: radii.lg,
+    backgroundColor: theme.colors.surfaceContainerLow,
+    borderRadius: theme.radii.lg,
     paddingVertical: 20,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderColor: theme.colors.outlineVariant,
   },
   anniversaryRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: colors.surfaceContainerLow,
-    borderRadius: radii.lg,
+    backgroundColor: theme.colors.surfaceContainerLow,
+    borderRadius: theme.radii.lg,
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderColor: theme.colors.outlineVariant,
   },
   anniversaryText: {
-    fontFamily: fonts.bodyMedium,
+    fontFamily: theme.fonts.bodyMedium,
     fontSize: 15,
-    color: colors.onSurface,
+    color: theme.colors.onSurface,
   },
   codeText: {
-    fontFamily: fonts.display,
+    fontFamily: theme.fonts.display,
     fontSize: 32,
     letterSpacing: 6,
-    color: colors.primary,
+    color: theme.colors.primary,
   },
   input: {
-    backgroundColor: colors.surfaceContainerLow,
+    backgroundColor: theme.colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
-    borderRadius: radii.xl,
+    borderColor: theme.colors.outlineVariant,
+    borderRadius: theme.radii.xl,
     paddingVertical: 14,
     paddingHorizontal: 16,
-    fontFamily: fonts.bodySemiBold,
+    fontFamily: theme.fonts.bodySemiBold,
     fontSize: 18,
     letterSpacing: 2,
-    color: colors.onSurface,
+    color: theme.colors.onSurface,
     textAlign: 'center',
   },
   primaryButton: {
-    backgroundColor: colors.primary,
-    borderRadius: radii.full,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radii.full,
     paddingVertical: 16,
     flexDirection: 'row',
     alignItems: 'center',
@@ -304,9 +307,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   primaryButtonText: {
-    fontFamily: fonts.bodySemiBold,
+    fontFamily: theme.fonts.bodySemiBold,
     fontSize: 13,
-    color: colors.onPrimary,
+    color: theme.colors.onPrimary,
     letterSpacing: 0.8,
   },
   secondaryButton: {
@@ -314,14 +317,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   secondaryButtonText: {
-    fontFamily: fonts.bodyMedium,
+    fontFamily: theme.fonts.bodyMedium,
     fontSize: 13,
-    color: colors.primary,
+    color: theme.colors.primary,
   },
   errorText: {
-    fontFamily: fonts.bodyMedium,
+    fontFamily: theme.fonts.bodyMedium,
     fontSize: 13,
-    color: colors.error,
+    color: theme.colors.error,
   },
   dividerRow: {
     flexDirection: 'row',
@@ -330,39 +333,39 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: colors.outlineVariant,
+    backgroundColor: theme.colors.outlineVariant,
   },
   dividerText: {
-    fontFamily: fonts.bodySemiBold,
+    fontFamily: theme.fonts.bodySemiBold,
     fontSize: 12,
-    color: colors.outline,
+    color: theme.colors.outline,
     letterSpacing: 1.5,
     marginHorizontal: 12,
   },
   partneredCard: {
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: radii.xxl,
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderRadius: theme.radii.xxl,
     padding: 32,
     alignItems: 'center',
     gap: 8,
-    ...shadows.sunsetGlow,
+    ...theme.shadows.sunsetGlow,
   },
   partneredTitle: {
-    fontFamily: fonts.body,
+    fontFamily: theme.fonts.body,
     fontSize: 14,
-    color: colors.onSurfaceVariant,
+    color: theme.colors.onSurfaceVariant,
     marginTop: 8,
   },
   partneredName: {
-    fontFamily: fonts.display,
+    fontFamily: theme.fonts.display,
     fontSize: 24,
-    color: colors.primary,
+    color: theme.colors.primary,
   },
   partneredHint: {
-    fontFamily: fonts.body,
+    fontFamily: theme.fonts.body,
     fontSize: 13,
     fontStyle: 'italic',
-    color: colors.onSurfaceVariant,
+    color: theme.colors.onSurfaceVariant,
     textAlign: 'center',
     marginTop: 8,
   },

@@ -5,7 +5,9 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AppHeader from '../components/AppHeader';
 import MenuSheet from '../components/MenuSheet';
 import BucketCard from '../components/BucketCard';
-import { colors, fonts, spacing } from '../theme/theme';
+import { spacing } from '../theme/theme';
+import type { Theme } from '../theme/theme';
+import { useTheme } from '../context/ThemeContext';
 import { useBucketList } from '../context/BucketListContext';
 import type { RootStackParamList } from '../navigation/types';
 import type { BucketCategory, BucketItem } from '../types';
@@ -16,6 +18,8 @@ const CATEGORIES: (BucketCategory | 'All Ideas')[] = ['All Ideas', 'Outdoors', '
 
 export default function BucketListScreen() {
   const navigation = useNavigation<Nav>();
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   const [menuVisible, setMenuVisible] = useState(false);
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>('All Ideas');
   const { items, checkedItemIds, isLoaded, toggleChecked } = useBucketList();
@@ -66,7 +70,7 @@ export default function BucketListScreen() {
         </ScrollView>
 
         {!isLoaded ? (
-          <ActivityIndicator style={{ marginTop: 40 }} color={colors.primary} />
+          <ActivityIndicator style={{ marginTop: 40 }} color={theme.colors.primary} />
         ) : (
           <View style={styles.grid}>
             {filtered.map((item) => (
@@ -90,80 +94,81 @@ export default function BucketListScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  listContent: {
-    paddingHorizontal: spacing.marginMobile,
-    paddingBottom: 40,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  hero: {
-    marginTop: 24,
-    marginBottom: 20,
-  },
-  heroTitle: {
-    fontFamily: fonts.display,
-    fontSize: 28,
-    color: colors.primary,
-  },
-  heroSubtitle: {
-    fontFamily: fonts.body,
-    fontSize: 15,
-    color: colors.onSurfaceVariant,
-    marginTop: 8,
-  },
-  filters: {
-    flexGrow: 0,
-    marginBottom: 20,
-    marginHorizontal: -spacing.marginMobile,
-  },
-  filtersContent: {
-    paddingHorizontal: spacing.marginMobile,
-    gap: 10,
-  },
-  filterChip: {
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 999,
-    backgroundColor: colors.surfaceContainerHigh,
-    marginRight: 10,
-  },
-  filterChipActive: {
-    backgroundColor: colors.secondaryContainer,
-  },
-  filterChipText: {
-    fontFamily: fonts.bodySemiBold,
-    fontSize: 13,
-    color: colors.onSurfaceVariant,
-  },
-  filterChipTextActive: {
-    color: colors.onSecondaryContainer,
-  },
-  quote: {
-    marginTop: 16,
-    marginBottom: 32,
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  quoteText: {
-    fontFamily: fonts.display,
-    fontSize: 22,
-    fontStyle: 'italic',
-    color: 'rgba(151,66,42,0.6)',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  quoteRule: {
-    width: 48,
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: 'rgba(151,66,42,0.2)',
-  },
-});
+const makeStyles = (theme: Theme) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    listContent: {
+      paddingHorizontal: spacing.marginMobile,
+      paddingBottom: 40,
+    },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+    },
+    hero: {
+      marginTop: 24,
+      marginBottom: 20,
+    },
+    heroTitle: {
+      fontFamily: theme.fonts.display,
+      fontSize: 28,
+      color: theme.colors.primary,
+    },
+    heroSubtitle: {
+      fontFamily: theme.fonts.body,
+      fontSize: 15,
+      color: theme.colors.onSurfaceVariant,
+      marginTop: 8,
+    },
+    filters: {
+      flexGrow: 0,
+      marginBottom: 20,
+      marginHorizontal: -spacing.marginMobile,
+    },
+    filtersContent: {
+      paddingHorizontal: spacing.marginMobile,
+      gap: 10,
+    },
+    filterChip: {
+      paddingHorizontal: 18,
+      paddingVertical: 10,
+      borderRadius: 999,
+      backgroundColor: theme.colors.surfaceContainerHigh,
+      marginRight: 10,
+    },
+    filterChipActive: {
+      backgroundColor: theme.colors.secondaryContainer,
+    },
+    filterChipText: {
+      fontFamily: theme.fonts.bodySemiBold,
+      fontSize: 13,
+      color: theme.colors.onSurfaceVariant,
+    },
+    filterChipTextActive: {
+      color: theme.colors.onSecondaryContainer,
+    },
+    quote: {
+      marginTop: 16,
+      marginBottom: 32,
+      alignItems: 'center',
+      paddingHorizontal: 20,
+    },
+    quoteText: {
+      fontFamily: theme.fonts.display,
+      fontSize: 22,
+      fontStyle: 'italic',
+      color: 'rgba(151,66,42,0.6)',
+      textAlign: 'center',
+      marginBottom: 12,
+    },
+    quoteRule: {
+      width: 48,
+      height: 3,
+      borderRadius: 2,
+      backgroundColor: 'rgba(151,66,42,0.2)',
+    },
+  });

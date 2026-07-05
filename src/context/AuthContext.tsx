@@ -7,6 +7,7 @@ export interface JourneyMember {
   role: string;
   email: string | null;
   displayName: string | null;
+  avatarUrl: string | null;
 }
 
 interface AuthContextValue {
@@ -31,6 +32,7 @@ interface AuthContextValue {
   createInvite: () => Promise<{ code: string | null; error: string | null }>;
   redeemInvite: (code: string) => Promise<string | null>;
   updateAnniversaryDate: (date: string | null) => Promise<string | null>;
+  updateAvatar: (url: string | null) => Promise<string | null>;
   refreshJourney: () => Promise<void>;
 }
 
@@ -81,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { data: members, error: membersError } = await supabase
       .from('journey_members')
-      .select('profile_id, role, profiles(email, display_name)')
+      .select('profile_id, role, profiles(email, display_name, avatar_url)')
       .eq('journey_id', currentJourneyId);
 
     if (membersError) {
@@ -93,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           role: m.role,
           email: m.profiles?.email ?? null,
           displayName: m.profiles?.display_name ?? null,
+          avatarUrl: m.profiles?.avatar_url ?? null,
         }))
       );
     }
@@ -219,6 +222,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [journeyId, anniversaryDate]
   );
 
+  const updateAvatar = useCallback(
+    async (url: string | null) => {
+      const currentUserId = session?.user.id;
+      if (!currentUserId) return 'You need to be signed in to do that.';
+      const previous = journeyMembers.find((m) => m.profileId === currentUserId)?.avatarUrl ?? null;
+      setJourneyMembers((prev) =>
+        prev.map((m) => (m.profileId === currentUserId ? { ...m, avatarUrl: url } : m))
+      );
+      const { error } = await supabase.from('profiles').update({ avatar_url: url }).eq('id', currentUserId);
+      if (error) {
+        setJourneyMembers((prev) =>
+          prev.map((m) => (m.profileId === currentUserId ? { ...m, avatarUrl: previous } : m))
+        );
+        return error.message;
+      }
+      return null;
+    },
+    [session?.user.id, journeyMembers]
+  );
+
   const userId = session?.user.id ?? null;
   const partner = useMemo(
     () => journeyMembers.find((m) => m.profileId !== userId) ?? null,
@@ -244,6 +267,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       createInvite,
       redeemInvite,
       updateAnniversaryDate,
+      updateAvatar,
       refreshJourney,
     }),
     [
@@ -261,6 +285,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       createInvite,
       redeemInvite,
       updateAnniversaryDate,
+      updateAvatar,
       refreshJourney,
     ]
   );

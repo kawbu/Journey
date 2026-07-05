@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { colors, fonts, radii } from '../theme/theme';
+import { useTheme } from '../context/ThemeContext';
+import type { Theme } from '../theme/theme';
 
 interface PickerFieldProps {
   mode: 'date' | 'time';
@@ -12,6 +13,8 @@ interface PickerFieldProps {
 }
 
 export default function PickerField({ mode, value, onChange, children, minimumDate }: PickerFieldProps) {
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   const [visible, setVisible] = useState(false);
 
   const handleChange = (event: DateTimePickerEvent, selected?: Date) => {
@@ -39,7 +42,7 @@ export default function PickerField({ mode, value, onChange, children, minimumDa
                 display="spinner"
                 onChange={handleChange}
                 minimumDate={minimumDate}
-                textColor={colors.onSurface}
+                textColor={theme.colors.onSurface}
               />
               <Pressable style={styles.doneButton} onPress={() => setVisible(false)}>
                 <Text style={styles.doneText}>Done</Text>
@@ -55,30 +58,30 @@ export default function PickerField({ mode, value, onChange, children, minimumDa
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(28,28,25,0.35)',
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radii.xxl,
-    borderTopRightRadius: radii.xxl,
+    backgroundColor: theme.colors.surface,
+    borderTopLeftRadius: theme.radii.xxl,
+    borderTopRightRadius: theme.radii.xxl,
     paddingBottom: 24,
     paddingTop: 8,
   },
   doneButton: {
     marginTop: 4,
     marginHorizontal: 20,
-    backgroundColor: colors.primary,
-    borderRadius: radii.full,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radii.full,
     paddingVertical: 12,
     alignItems: 'center',
   },
   doneText: {
-    fontFamily: fonts.bodySemiBold,
+    fontFamily: theme.fonts.bodySemiBold,
     fontSize: 14,
-    color: colors.onPrimary,
+    color: theme.colors.onPrimary,
   },
 });

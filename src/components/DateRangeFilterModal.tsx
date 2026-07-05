@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import PickerField from './PickerField';
-import { colors, fonts, radii, shadows } from '../theme/theme';
+import { useTheme } from '../context/ThemeContext';
+import type { Theme } from '../theme/theme';
 import { formatShortDate } from '../utils/format';
 
 export interface DateRange {
@@ -22,6 +23,8 @@ function toIso(date: Date): string {
 }
 
 export default function DateRangeFilterModal({ visible, range, onChange, onClose }: DateRangeFilterModalProps) {
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   const startDate = range.start ? new Date(`${range.start}T00:00:00`) : new Date();
   const endDate = range.end ? new Date(`${range.end}T00:00:00`) : new Date();
 
@@ -34,7 +37,7 @@ export default function DateRangeFilterModal({ visible, range, onChange, onClose
           <Text style={styles.label}>From</Text>
           <PickerField mode="date" value={startDate} onChange={(d) => onChange({ ...range, start: toIso(d) })}>
             <View style={styles.field}>
-              <MaterialIcons name="calendar-today" size={18} color={colors.primary} />
+              <MaterialIcons name="calendar-today" size={18} color={theme.colors.primary} />
               <Text style={styles.fieldText}>{range.start ? formatShortDate(range.start) : 'Any'}</Text>
             </View>
           </PickerField>
@@ -42,7 +45,7 @@ export default function DateRangeFilterModal({ visible, range, onChange, onClose
           <Text style={styles.label}>To</Text>
           <PickerField mode="date" value={endDate} onChange={(d) => onChange({ ...range, end: toIso(d) })}>
             <View style={styles.field}>
-              <MaterialIcons name="calendar-today" size={18} color={colors.primary} />
+              <MaterialIcons name="calendar-today" size={18} color={theme.colors.primary} />
               <Text style={styles.fieldText}>{range.end ? formatShortDate(range.end) : 'Any'}</Text>
             </View>
           </PickerField>
@@ -67,79 +70,80 @@ export default function DateRangeFilterModal({ visible, range, onChange, onClose
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(28,28,25,0.35)',
-    justifyContent: 'flex-end',
-  },
-  sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radii.xxl,
-    borderTopRightRadius: radii.xxl,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 32,
-    ...shadows.bottomSheet,
-  },
-  heading: {
-    fontFamily: fonts.display,
-    fontSize: 20,
-    color: colors.primary,
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  label: {
-    fontFamily: fonts.bodySemiBold,
-    fontSize: 12,
-    color: colors.outline,
-    letterSpacing: 0.5,
-    marginBottom: 6,
-    marginTop: 12,
-  },
-  field: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: colors.surfaceContainerLow,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
-  fieldText: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 15,
-    color: colors.onSurface,
-  },
-  actionsRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 24,
-  },
-  clearButton: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: radii.full,
-    alignItems: 'center',
-    backgroundColor: colors.surfaceContainerHighest,
-  },
-  clearText: {
-    fontFamily: fonts.bodySemiBold,
-    fontSize: 14,
-    color: colors.onSurfaceVariant,
-  },
-  doneButton: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: radii.full,
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-  },
-  doneText: {
-    fontFamily: fonts.bodySemiBold,
-    fontSize: 14,
-    color: colors.onPrimary,
-  },
-});
+const makeStyles = (theme: Theme) =>
+  StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(28,28,25,0.35)',
+      justifyContent: 'flex-end',
+    },
+    sheet: {
+      backgroundColor: theme.colors.surface,
+      borderTopLeftRadius: theme.radii.xxl,
+      borderTopRightRadius: theme.radii.xxl,
+      paddingHorizontal: 20,
+      paddingTop: 20,
+      paddingBottom: 32,
+      ...theme.shadows.bottomSheet,
+    },
+    heading: {
+      fontFamily: theme.fonts.display,
+      fontSize: 20,
+      color: theme.colors.primary,
+      marginBottom: 16,
+      textAlign: 'center',
+    },
+    label: {
+      fontFamily: theme.fonts.bodySemiBold,
+      fontSize: 12,
+      color: theme.colors.outline,
+      letterSpacing: 0.5,
+      marginBottom: 6,
+      marginTop: 12,
+    },
+    field: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      backgroundColor: theme.colors.surfaceContainerLow,
+      borderRadius: theme.radii.lg,
+      borderWidth: 1,
+      borderColor: theme.colors.outlineVariant,
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+    },
+    fieldText: {
+      fontFamily: theme.fonts.bodyMedium,
+      fontSize: 15,
+      color: theme.colors.onSurface,
+    },
+    actionsRow: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 24,
+    },
+    clearButton: {
+      flex: 1,
+      paddingVertical: 14,
+      borderRadius: theme.radii.full,
+      alignItems: 'center',
+      backgroundColor: theme.colors.surfaceContainerHighest,
+    },
+    clearText: {
+      fontFamily: theme.fonts.bodySemiBold,
+      fontSize: 14,
+      color: theme.colors.onSurfaceVariant,
+    },
+    doneButton: {
+      flex: 1,
+      paddingVertical: 14,
+      borderRadius: theme.radii.full,
+      alignItems: 'center',
+      backgroundColor: theme.colors.primary,
+    },
+    doneText: {
+      fontFamily: theme.fonts.bodySemiBold,
+      fontSize: 14,
+      color: theme.colors.onPrimary,
+    },
+  });

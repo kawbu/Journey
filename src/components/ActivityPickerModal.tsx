@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors, fonts, radii } from '../theme/theme';
+import { useTheme } from '../context/ThemeContext';
+import type { Theme } from '../theme/theme';
 import { activityIcon, activityLabel, activityOptions } from '../theme/activityIcons';
 import type { ActivityType } from '../types';
 
@@ -13,6 +14,9 @@ interface ActivityPickerModalProps {
 }
 
 export default function ActivityPickerModal({ visible, selected, onSelect, onClose }: ActivityPickerModalProps) {
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose}>
@@ -36,7 +40,7 @@ export default function ActivityPickerModal({ visible, selected, onSelect, onClo
                   <MaterialIcons
                     name={activityIcon[item]}
                     size={22}
-                    color={active ? colors.onPrimary : colors.primary}
+                    color={active ? theme.colors.onPrimary : theme.colors.primary}
                   />
                   <Text style={[styles.optionLabel, active && styles.optionLabelActive]} numberOfLines={1}>
                     {activityLabel[item]}
@@ -51,53 +55,54 @@ export default function ActivityPickerModal({ visible, selected, onSelect, onClo
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(28,28,25,0.35)',
-    justifyContent: 'flex-end',
-  },
-  sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radii.xxl,
-    borderTopRightRadius: radii.xxl,
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 32,
-    maxHeight: '70%',
-  },
-  heading: {
-    fontFamily: fonts.display,
-    fontSize: 20,
-    color: colors.primary,
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  row: {
-    gap: 10,
-    marginBottom: 10,
-  },
-  option: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 14,
-    borderRadius: radii.lg,
-    backgroundColor: colors.surfaceContainerLow,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-  },
-  optionActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  optionLabel: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 11,
-    color: colors.onSurface,
-  },
-  optionLabelActive: {
-    color: colors.onPrimary,
-  },
-});
+const makeStyles = (theme: Theme) =>
+  StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(28,28,25,0.35)',
+      justifyContent: 'flex-end',
+    },
+    sheet: {
+      backgroundColor: theme.colors.surface,
+      borderTopLeftRadius: theme.radii.xxl,
+      borderTopRightRadius: theme.radii.xxl,
+      paddingHorizontal: 16,
+      paddingTop: 20,
+      paddingBottom: 32,
+      maxHeight: '70%',
+    },
+    heading: {
+      fontFamily: theme.fonts.display,
+      fontSize: 20,
+      color: theme.colors.primary,
+      marginBottom: 16,
+      textAlign: 'center',
+    },
+    row: {
+      gap: 10,
+      marginBottom: 10,
+    },
+    option: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      paddingVertical: 14,
+      borderRadius: theme.radii.lg,
+      backgroundColor: theme.colors.surfaceContainerLow,
+      borderWidth: 1,
+      borderColor: theme.colors.outlineVariant,
+    },
+    optionActive: {
+      backgroundColor: theme.colors.primary,
+      borderColor: theme.colors.primary,
+    },
+    optionLabel: {
+      fontFamily: theme.fonts.bodyMedium,
+      fontSize: 11,
+      color: theme.colors.onSurface,
+    },
+    optionLabelActive: {
+      color: theme.colors.onPrimary,
+    },
+  });

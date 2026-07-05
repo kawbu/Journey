@@ -20,10 +20,11 @@ The core relationship is:
 ```
 journey  (one per couple)
   └─ journey_members   (exactly 2 people max, enforced at the DB level)
-  └─ date_entries      (many — each one full "day" of a date)
+  └─ date_entries      (many — each one full "day" of a date, optionally with a cover photo)
        └─ stops        (many — breakfast, a walk, a movie, etc., each with a time + map pin)
   └─ journey_bucket_status  (which bucket-list ideas this couple has checked off)
 notification_preferences  (per-profile, not per-journey — each partner's alerts are independent)
+profiles                 (per-user; includes an optional avatar_url)
 bucket_items             (global, read-only catalog of date ideas — not owned by any journey)
 ```
 
@@ -55,21 +56,33 @@ finishes.
 | `MapScreen` | Live map (`react-native-maps`) with **numbered pins** (1, 2, 3…) in stop order, a dashed route line connecting them, a horizontal date-switcher, and a floating "current stop" detail card with a directions button. |
 | `PlanDateScreen` | Create or edit a date entry: title, date picker, and a dynamic list of stops (time, location — searched live via OpenStreetMap Nominatim or dropped as a pin on a map — and activity type). Doubles as the edit screen (pre-fills from an existing entry) with a delete option. |
 | `BucketListScreen` | Bento-grid of curated date ideas (global catalog), filterable by category, each with a "Plan This" button (prefills `PlanDateScreen`) and a checkmark badge to mark it done together. |
-| `ProfileScreen` | Stats (dates planned, stops, memories made), settings list (Relationship Details, Notifications, Privacy, Help), Sign Out. |
+| `ProfileScreen` | Tappable avatar (upload/replace a profile photo), stats (dates planned, stops, memories made), a "Journey+" upsell banner, settings list (Relationship Details, Notifications, Settings, Help), Sign Out. |
+| `SettingsScreen` | Avatar + join date, Appearance (Light/Dark/System segmented control), Relationship Details, Notifications, Help & Feedback, disabled Terms/Privacy placeholders, app version, Log Out. The "real" settings surface — `ProfileScreen`'s settings list and `MenuSheet`'s items both funnel here or to the same modals. |
+| `HelpFeedbackScreen` | Expandable "common topics" FAQ cards, a "Chat with us" stub and a "Send Email" `mailto:` link, a feature/bug feedback form (also sent via `mailto:`), and a 5-star app-rating widget (UI only, not wired to a store review prompt). |
 | `InvitePartnerModal` (a.k.a. "Relationship Details") | Generate/share a 6-character invite code, redeem a partner's code, see who you're sharing your journey with, and set/edit the relationship's anniversary date. |
 | `NotificationsSettingsModal` | Five toggles: new date plans, anniversary reminders, 24h/1h date reminders, shared bucket-list updates. Autosaves per-toggle (no separate Save button, matching the rest of the app's interaction style). |
+| `JourneyPlusModal` | A paywall/upsell screen (animated in from `ProfileScreen`'s banner) listing prospective premium perks ("AI-Enhanced Planning", early access, shared diary, priority support) at a placeholder $1.99/mo price. **UI only** — "Start Free Trial" just closes the modal; there is no billing/subscription/entitlement integration behind it yet. |
 
 ---
 
 ## 3. Visual design system
 
 Theme tokens live in `src/theme/theme.ts` and are the single source of truth — no screen
-invents its own colors/fonts.
+invents its own colors/fonts. The app supports **light and dark mode**: `theme.ts` exports a
+`lightTheme`/`darkTheme` pair (same shape, different `colors`/`shadows`), and `ThemeContext`
+(`src/context/ThemeContext.tsx`) picks the active one from a user preference (`light` / `dark`
+/ `system`, persisted to `AsyncStorage`) resolved against `useColorScheme()`. Components call
+`useTheme()` to get the active `Theme` object — never import `colors`/`shadows` directly from
+`theme.ts`.
 
-- **Palette** ("Twilight & Ember"): warm terracotta primary (`#97422a`), cream/beige surfaces
-  (`#fdf9f4` background), deep-rose tertiary, espresso text instead of true black. Full token
-  set: `colors`, `radii` (4→9999), `spacing` (8px base unit), `shadows.sunsetGlow` (a soft,
-  warm-tinted shadow used on almost every card).
+- **Palette** ("Twilight & Ember"): warm terracotta primary (`#97422a` light / `#ffb5a1` dark),
+  cream/beige surfaces in light mode (`#fdf9f4` background), warm brown-black surfaces in dark
+  mode (`#15100e` background — a deliberate warm-tinted dark, not a neutral-gray inversion),
+  deep-rose tertiary, espresso text instead of true black. Full token set: `colors`, `radii`
+  (4→9999), `spacing` (8px base unit), `shadows.sunsetGlow` (a soft, warm-tinted shadow in light
+  mode; shifts to a plain black shadow in dark mode, where a tinted shadow reads as a muddy
+  smudge). `*Fixed`/`*FixedDim`/`onFixed*` color roles are intentionally identical between
+  light and dark (Material 3 convention, for spots that must stay constant regardless of scheme).
 - **Typography**: `Libre Caslon Text` (serif) for display/headline text — titles, wordmarks,
   quotes; `Be Vietnam Pro` (sans) for body/label text. Loaded via `@expo-google-fonts/*` and
   gating `App.tsx`'s render until both font families resolve.
@@ -108,6 +121,20 @@ invents its own colors/fonts.
    `journey_bucket_status` (a couple's "checked off" bucket-list ideas — presence of a row
    *is* the checked state; unchecking deletes the row rather than flipping a boolean, so
    `checked_by`/`checked_at` never go stale).
+6. **`storage_buckets`** — two public Supabase Storage buckets, `avatars` and `date-covers`
+   (public reads, same trust model as the hardcoded stock-photo URLs already used elsewhere;
+   writes gated by RLS on `storage.objects`). `avatars/<user_id>/…` is writable only by that
+   user; `date-covers/<journey_id>/…` is writable by any member of that journey, reusing
+   `is_journey_member()`.
+7. **`profile_avatar`** — adds `profiles.avatar_url` (no RLS change needed — co-members can
+   already read each other's profile row from migration 4, and a user already updates their own
+   row).
+8. **`fix_storage_policies`** — the original `storage.objects` policies from migration 6 were
+   missing an explicit `to authenticated` role restriction and a `select` policy, which made
+   uploads fail with "new row violates row-level security policy" (upsert's existence check
+   needs read access too). Recreates all six policies matching Supabase's documented pattern.
+   A live lesson in why Storage RLS needs a `select` policy even for what feels like a
+   write-only flow.
 
 Every table uses Row Level Security. The recurring pattern is a `SECURITY DEFINER` SQL helper,
 `is_journey_member(journey_id)`, referenced from nearly every policy — this avoids the
@@ -127,9 +154,10 @@ AuthProvider
 ```
 
 - **`AuthContext`** — wraps `supabase.auth`, exposes `session`/`userId`/`journeyId`, the current
-  journey's members (`journeyMembers`, `partner`, `isPartnered`), `anniversaryDate`, and the
-  invite/redeem/sign-in/up/out methods. Subscribes to Realtime on `journey_members` (so a
-  partner joining shows up live) and `journeys` (so an anniversary-date edit syncs live).
+  journey's members (`journeyMembers`, `partner`, `isPartnered`, each including `avatarUrl`),
+  `anniversaryDate`, and the invite/redeem/sign-in/up/out/`updateAvatar` methods. Subscribes to
+  Realtime on `journey_members` (so a partner joining, or changing their avatar, shows up live)
+  and `journeys` (so an anniversary-date edit syncs live).
 - **`DatesContext`** — CRUD for `date_entries`/`stops`, mapping between DB rows (snake_case,
   Postgres `time` type) and the app's `DateEntry`/`Stop` types (camelCase, `"HH:mm"` strings).
   Stop edits are reconciled by delete-all-and-reinsert rather than diffing — simpler and
@@ -142,6 +170,10 @@ AuthProvider
 All four contexts follow the same shape: `isLoaded` flag, optimistic-update-then-revert-on-error
 mutators, and a Realtime channel per relevant table that just triggers a refetch rather than
 trying to patch state precisely from the payload.
+
+A fifth, unrelated context sits outside this data-dependency chain: **`ThemeContext`**
+(`ThemeProvider` wraps everything, including `AuthProvider`, since theme has no dependency on
+auth state) — see §3.
 
 ---
 
@@ -175,6 +207,15 @@ plain-language banner explaining why in that case.
 
 ## 6. Notable implementation decisions
 
+- **Photo uploads without a dedicated backend**: `src/lib/imageUpload.ts`'s
+  `pickAndUploadImage(bucket, path)` handles profile avatars and per-date cover photos with the
+  same helper — pick from the camera roll (`expo-image-picker`), downscale/compress to a JPEG
+  (`expo-image-manipulator`), then upload directly to Supabase Storage from the client. React
+  Native's `fetch(...).blob()` doesn't produce a real `Blob` that Supabase's storage client can
+  upload, so the file is read as base64 (`expo-file-system`) and converted to an `ArrayBuffer`
+  (`base64-arraybuffer`) instead — the standard workaround for Storage uploads from Expo/RN.
+  Returns `null` (not a thrown error) on permission denial, cancellation, or failure, so callers
+  can treat it as a plain no-op.
 - **Location search with no API key**: the "set pin on map" flow in `PlanDateScreen` offers a
   live autocomplete dropdown backed by **OpenStreetMap Nominatim** (free, no signup), debounced
   ~450ms, alongside a plain drag-the-pin fallback — chosen over Google Places Autocomplete
@@ -205,6 +246,12 @@ plain-language banner explaining why in that case.
 - Real cross-device push notifications (needs EAS dev-client + server-side sender).
 - Google OAuth sign-in (`signInWithGoogle()` exists as a stub for future Supabase OAuth
   provider config).
-- Editing a display name after sign-up, or any other profile-editing UI.
+- Editing a display name after sign-up (avatar photo *can* be changed, from Profile or
+  Settings; there's no equivalent for the name itself yet).
+- **Journey+**: `JourneyPlusModal` is UI-only — no billing/subscription/entitlement system
+  behind the "Start Free Trial" button, and none of its listed perks (AI planning, early
+  access, shared diary, priority support) exist elsewhere in the app yet.
+- `HelpFeedbackScreen`'s "Chat with us" and star-rating widget are both UI stubs (an alert and
+  local state respectively) — not wired to a live-chat provider or an app-store review prompt.
 - More than two members per journey (hard-capped at the DB level by design — this is a couples
   app).

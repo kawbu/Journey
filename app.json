@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "backgroundColor": "#fdf9f4",
     "splash": {
       "backgroundColor": "#fdf9f4"
@@ -34,6 +34,14 @@
           "icon": "./assets/icon.png",
           "color": "#97422a",
           "defaultChannel": "default"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Our Journey to access your photos to set a profile picture or date cover image.",
+          "cameraPermission": false,
+          "microphonePermission": false
         }
       ]
     ]

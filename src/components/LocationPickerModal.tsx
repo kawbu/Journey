@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Keyboard,
@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import MapView, { Marker, type LatLng } from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors, fonts, radii, shadows } from '../theme/theme';
+import { useTheme } from '../context/ThemeContext';
+import type { Theme } from '../theme/theme';
 
 interface LocationPickerModalProps {
   visible: boolean;
@@ -65,6 +66,8 @@ export default function LocationPickerModal({
   onConfirm,
   onClose,
 }: LocationPickerModalProps) {
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   const [coordinate, setCoordinate] = useState<LatLng>(initialCoordinate);
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -124,11 +127,11 @@ export default function LocationPickerModal({
       <View style={styles.container}>
         <View style={styles.header}>
           <Pressable hitSlop={10} onPress={onClose} style={styles.headerButton}>
-            <MaterialIcons name="close" size={22} color={colors.primary} />
+            <MaterialIcons name="close" size={22} color={theme.colors.primary} />
           </Pressable>
           <Text style={styles.headerTitle}>Drop a Pin</Text>
           <Pressable hitSlop={10} onPress={() => onConfirm(coordinate)} style={styles.headerButton}>
-            <MaterialIcons name="check" size={22} color={colors.primary} />
+            <MaterialIcons name="check" size={22} color={theme.colors.primary} />
           </Pressable>
         </View>
 
@@ -151,17 +154,17 @@ export default function LocationPickerModal({
               coordinate={coordinate}
               draggable
               onDragEnd={(e) => setCoordinate(e.nativeEvent.coordinate)}
-              pinColor={colors.primary}
+              pinColor={theme.colors.primary}
             />
           </MapView>
 
           <View style={styles.searchOverlay} pointerEvents="box-none">
             <View style={styles.searchBar}>
-              <MaterialIcons name="search" size={20} color={colors.primary} />
+              <MaterialIcons name="search" size={20} color={theme.colors.primary} />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search for a place or address..."
-                placeholderTextColor={colors.outline}
+                placeholderTextColor={theme.colors.outline}
                 value={query}
                 onChangeText={(text) => {
                   setQuery(text);
@@ -171,7 +174,7 @@ export default function LocationPickerModal({
                 returnKeyType="search"
                 autoCorrect={false}
               />
-              {searching && <ActivityIndicator size="small" color={colors.primary} />}
+              {searching && <ActivityIndicator size="small" color={theme.colors.primary} />}
               {!searching && query.length > 0 && (
                 <Pressable
                   onPress={() => {
@@ -180,7 +183,7 @@ export default function LocationPickerModal({
                   }}
                   hitSlop={8}
                 >
-                  <MaterialIcons name="close" size={18} color={colors.outline} />
+                  <MaterialIcons name="close" size={18} color={theme.colors.outline} />
                 </Pressable>
               )}
             </View>
@@ -195,7 +198,7 @@ export default function LocationPickerModal({
                         style={[styles.suggestionRow, idx !== suggestions.length - 1 && styles.suggestionDivider]}
                         onPress={() => handleSelectSuggestion(s)}
                       >
-                        <MaterialIcons name="location-on" size={18} color={colors.primary} />
+                        <MaterialIcons name="location-on" size={18} color={theme.colors.primary} />
                         <View style={{ flex: 1 }}>
                           <Text style={styles.suggestionLabel} numberOfLines={1}>
                             {s.label}
@@ -226,10 +229,10 @@ export default function LocationPickerModal({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: theme.colors.background,
     paddingTop: 56,
   },
   header: {
@@ -246,14 +249,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: fonts.display,
+    fontFamily: theme.fonts.display,
     fontSize: 20,
-    color: colors.primary,
+    color: theme.colors.primary,
   },
   mapWrap: {
     flex: 1,
     marginHorizontal: 16,
-    borderRadius: radii.xl,
+    borderRadius: theme.radii.xl,
     overflow: 'hidden',
   },
   searchOverlay: {
@@ -267,34 +270,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: colors.background,
-    borderRadius: radii.xl,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.radii.xl,
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderWidth: 1,
     borderColor: 'rgba(219,193,186,0.4)',
-    ...shadows.sunsetGlow,
+    ...theme.shadows.sunsetGlow,
   },
   searchInput: {
     flex: 1,
-    fontFamily: fonts.body,
+    fontFamily: theme.fonts.body,
     fontSize: 15,
-    color: colors.onSurface,
+    color: theme.colors.onSurface,
     paddingVertical: 2,
   },
   dropdown: {
     marginTop: 8,
-    backgroundColor: colors.background,
-    borderRadius: radii.lg,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.radii.lg,
     borderWidth: 1,
     borderColor: 'rgba(219,193,186,0.4)',
     overflow: 'hidden',
-    ...shadows.sunsetGlow,
+    ...theme.shadows.sunsetGlow,
   },
   dropdownEmpty: {
-    fontFamily: fonts.bodyMedium,
+    fontFamily: theme.fonts.bodyMedium,
     fontSize: 13,
-    color: colors.onSurfaceVariant,
+    color: theme.colors.onSurfaceVariant,
     padding: 14,
     textAlign: 'center',
   },
@@ -307,23 +310,23 @@ const styles = StyleSheet.create({
   },
   suggestionDivider: {
     borderBottomWidth: 1,
-    borderBottomColor: colors.surfaceContainerHigh,
+    borderBottomColor: theme.colors.surfaceContainerHigh,
   },
   suggestionLabel: {
-    fontFamily: fonts.bodySemiBold,
+    fontFamily: theme.fonts.bodySemiBold,
     fontSize: 14,
-    color: colors.onSurface,
+    color: theme.colors.onSurface,
   },
   suggestionSublabel: {
-    fontFamily: fonts.bodyMedium,
+    fontFamily: theme.fonts.bodyMedium,
     fontSize: 12,
-    color: colors.onSurfaceVariant,
+    color: theme.colors.onSurfaceVariant,
     marginTop: 1,
   },
   hint: {
-    fontFamily: fonts.body,
+    fontFamily: theme.fonts.body,
     fontSize: 13,
-    color: colors.onSurfaceVariant,
+    color: theme.colors.onSurfaceVariant,
     textAlign: 'center',
     paddingHorizontal: 32,
     marginTop: 12,
@@ -332,15 +335,15 @@ const styles = StyleSheet.create({
   confirmButton: {
     marginHorizontal: 20,
     marginBottom: 20,
-    backgroundColor: colors.primary,
-    borderRadius: radii.full,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radii.full,
     paddingVertical: 16,
     alignItems: 'center',
   },
   confirmText: {
-    fontFamily: fonts.bodySemiBold,
+    fontFamily: theme.fonts.bodySemiBold,
     fontSize: 14,
-    color: colors.onPrimary,
+    color: theme.colors.onPrimary,
     letterSpacing: 0.5,
   },
 });

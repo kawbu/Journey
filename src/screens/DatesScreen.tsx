@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FlatList, Share, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AppHeader from '../components/AppHeader';
 import MenuSheet from '../components/MenuSheet';
 import DateCard from '../components/DateCard';
-import { colors, fonts, spacing } from '../theme/theme';
+import { useTheme } from '../context/ThemeContext';
+import type { Theme } from '../theme/theme';
 import { useDates } from '../context/DatesContext';
 import type { RootStackParamList } from '../navigation/types';
 import type { DateEntry } from '../types';
@@ -14,7 +15,9 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function DatesScreen() {
   const navigation = useNavigation<Nav>();
-  const { upcomingDates } = useDates();
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
+  const { strictlyUpcomingDates } = useDates();
   const [menuVisible, setMenuVisible] = useState(false);
 
   const handleViewMap = (dateId: string) => {
@@ -47,7 +50,7 @@ export default function DatesScreen() {
       />
       <MenuSheet visible={menuVisible} onClose={() => setMenuVisible(false)} />
       <FlatList
-        data={upcomingDates}
+        data={strictlyUpcomingDates}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
@@ -56,7 +59,7 @@ export default function DatesScreen() {
             <Text style={styles.heroSubtitle}>Every moment together is a treasure waiting to happen.</Text>
           </View>
         }
-        ItemSeparatorComponent={() => <View style={{ height: spacing.stackLg }} />}
+        ItemSeparatorComponent={() => <View style={{ height: theme.spacing.stackLg }} />}
         renderItem={({ item }) => (
           <DateCard entry={item} onViewMap={handleViewMap} onShare={handleShare} onEdit={handleEdit} />
         )}
@@ -70,40 +73,41 @@ export default function DatesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  listContent: {
-    paddingHorizontal: spacing.marginMobile,
-    paddingTop: spacing.stackLg,
-    paddingBottom: 40,
-  },
-  hero: {
-    marginBottom: spacing.stackLg,
-  },
-  heroTitle: {
-    fontFamily: fonts.display,
-    fontSize: 28,
-    color: colors.onSurface,
-  },
-  heroSubtitle: {
-    fontFamily: fonts.body,
-    fontSize: 16,
-    color: colors.onSurfaceVariant,
-    fontStyle: 'italic',
-    marginTop: 8,
-  },
-  empty: {
-    paddingVertical: 60,
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontFamily: fonts.body,
-    fontSize: 15,
-    color: colors.onSurfaceVariant,
-    textAlign: 'center',
-    paddingHorizontal: 30,
-  },
-});
+const makeStyles = (theme: Theme) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    listContent: {
+      paddingHorizontal: theme.spacing.marginMobile,
+      paddingTop: theme.spacing.stackLg,
+      paddingBottom: 40,
+    },
+    hero: {
+      marginBottom: theme.spacing.stackLg,
+    },
+    heroTitle: {
+      fontFamily: theme.fonts.display,
+      fontSize: 28,
+      color: theme.colors.onSurface,
+    },
+    heroSubtitle: {
+      fontFamily: theme.fonts.body,
+      fontSize: 16,
+      color: theme.colors.onSurfaceVariant,
+      fontStyle: 'italic',
+      marginTop: 8,
+    },
+    empty: {
+      paddingVertical: 60,
+      alignItems: 'center',
+    },
+    emptyText: {
+      fontFamily: theme.fonts.body,
+      fontSize: 15,
+      color: theme.colors.onSurfaceVariant,
+      textAlign: 'center',
+      paddingHorizontal: 30,
+    },
+  });
