@@ -202,6 +202,9 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
 
       if (!(await getPermissionGranted())) return;
 
+      // Intentionally time-based, not orderIndex-based: this finds the
+      // chronologically-first stop to schedule a "day starts soon" push
+      // notification, not a display-order concern.
       const sortedStops = [...entry.stops].sort((a, b) => a.time.localeCompare(b.time));
       const firstStop = sortedStops[0];
       if (!firstStop) return;

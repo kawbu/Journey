@@ -22,7 +22,8 @@ export interface Coordinates {
 
 export interface Stop {
   id: string;
-  time: string; // 24h "HH:mm" used for sorting + editing
+  orderIndex: number;
+  time: string; // 24h "HH:mm" for editing/display
   title: string;
   description: string;
   activity: ActivityType;

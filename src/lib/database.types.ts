@@ -369,6 +369,7 @@ export type Database = {
           id: string
           latitude: number
           longitude: number
+          order_index: number
           rating: number | null
           time: string
           title: string
@@ -384,6 +385,7 @@ export type Database = {
           id?: string
           latitude: number
           longitude: number
+          order_index?: number
           rating?: number | null
           time: string
           title: string
@@ -399,6 +401,7 @@ export type Database = {
           id?: string
           latitude?: number
           longitude?: number
+          order_index?: number
           rating?: number | null
           time?: string
           title?: string
