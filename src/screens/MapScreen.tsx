@@ -7,7 +7,7 @@ import type { RouteProp } from '@react-navigation/native';
 import AppHeader from '../components/AppHeader';
 import MenuSheet from '../components/MenuSheet';
 import MapPin from '../components/MapPin';
-import StopDetailCard from '../components/StopDetailCard';
+import StopDetailCardSwiper from '../components/StopDetailCardSwiper';
 import { useTheme } from '../context/ThemeContext';
 import type { Theme } from '../theme/theme';
 import { useDates } from '../context/DatesContext';
@@ -85,6 +85,16 @@ export default function MapScreen() {
   const displayedStop = stops.find((s) => s.id === selectedStopId) ?? currentStop;
   const displayedIndex = displayedStop ? stops.findIndex((s) => s.id === displayedStop.id) + 1 : 0;
 
+  const goToPrevStop = () => {
+    const idx = displayedIndex - 1;
+    if (idx > 0) setSelectedStopId(stops[idx - 1].id);
+  };
+
+  const goToNextStop = () => {
+    const idx = displayedIndex - 1;
+    if (idx < stops.length - 1) setSelectedStopId(stops[idx + 1].id);
+  };
+
   return (
     <View style={styles.screen}>
       <AppHeader
@@ -159,11 +169,15 @@ export default function MapScreen() {
 
         {displayedStop && activeDate && (
           <View style={styles.detailCardWrap}>
-            <StopDetailCard
+            <StopDetailCardSwiper
               stop={displayedStop}
               index={displayedIndex}
               total={stops.length}
               isCurrent={displayedStop.id === currentStop?.id}
+              onSwipeLeft={goToNextStop}
+              onSwipeRight={goToPrevStop}
+              canSwipeLeft={displayedIndex < stops.length}
+              canSwipeRight={displayedIndex > 1}
             />
           </View>
         )}

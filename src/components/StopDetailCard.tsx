@@ -71,6 +71,7 @@ export default function StopDetailCard({ stop, index, total, isCurrent }: StopDe
           )}
         </View>
       </View>
+
       <Pressable style={styles.navButton} onPress={() => openDirections(stop)} hitSlop={8}>
         <MaterialIcons name="near-me" size={20} color={theme.colors.onSecondaryContainer} />
       </Pressable>
