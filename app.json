@@ -11,9 +11,14 @@
       "backgroundColor": "#fdf9f4"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ourjourney.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.ourjourney.app",
       "adaptiveIcon": {
         "backgroundColor": "#fdf9f4",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -44,6 +49,12 @@
           "microphonePermission": false
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "435254d3-1caa-478a-9c72-ffab84336af9"
+      }
+    },
+    "owner": "coolkaw"
   }
 }

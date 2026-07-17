@@ -15,6 +15,7 @@
     "base64-arraybuffer": "^1.0.2",
     "expo": "~57.0.2",
     "expo-constants": "~57.0.3",
+    "expo-dev-client": "~57.0.5",
     "expo-device": "~57.0.0",
     "expo-file-system": "~57.0.0",
     "expo-font": "~57.0.0",
@@ -25,8 +26,10 @@
     "expo-status-bar": "~57.0.0",
     "react": "19.2.3",
     "react-native": "0.86.0",
+    "react-native-draggable-flatlist": "^4.0.3",
     "react-native-gesture-handler": "~2.32.0",
     "react-native-maps": "1.27.2",
+    "react-native-reanimated": "4.5.0",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "4.25.2",
     "react-native-url-polyfill": "^3.0.0"
@@ -39,14 +42,15 @@
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^12.0.9",
     "@types/react": "~19.2.2",
+    "eas-cli": "^20.5.1",
     "husky": "^9.1.7",
     "semantic-release": "^25.0.5",
     "typescript": "~6.0.3"
   },
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "prepare": "husky"
   },

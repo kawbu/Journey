@@ -25,13 +25,14 @@ interface DatesContextValue {
 
 const DatesContext = createContext<DatesContextValue | undefined>(undefined);
 
-function sortStopsByTime(stops: Stop[]): Stop[] {
-  return [...stops].sort((a, b) => a.time.localeCompare(b.time));
+function sortStopsByOrder(stops: Stop[]): Stop[] {
+  return [...stops].sort((a, b) => a.orderIndex - b.orderIndex);
 }
 
 function mapStopRow(row: StopRow): Stop {
   return {
     id: row.id,
+    orderIndex: row.order_index,
     time: row.time.slice(0, 5),
     title: row.title,
     description: row.description ?? '',
@@ -59,6 +60,7 @@ function mapDateEntryRow(row: DateEntryWithStops): DateEntry {
 function stopToInsertRow(stop: Stop, dateEntryId: string): Database['public']['Tables']['stops']['Insert'] {
   return {
     date_entry_id: dateEntryId,
+    order_index: stop.orderIndex,
     time: stop.time,
     title: stop.title,
     description: stop.description || null,
@@ -234,7 +236,7 @@ export function DatesProvider({ children }: { children: React.ReactNode }) {
 
   const getDateById = useCallback((dateId: string) => dates.find((d) => d.id === dateId), [dates]);
 
-  const sortedStops = useCallback((entry: DateEntry) => sortStopsByTime(entry.stops), []);
+  const sortedStops = useCallback((entry: DateEntry) => sortStopsByOrder(entry.stops), []);
 
   const upcomingDates = useMemo(
     () => [...dates].sort((a, b) => a.date.localeCompare(b.date)),

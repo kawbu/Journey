@@ -7,7 +7,7 @@ import { supabase } from './supabase';
 const MAX_DIMENSION = 1200;
 const JPEG_QUALITY = 0.8;
 
-export type UploadBucket = 'avatars' | 'date-covers';
+export type UploadBucket = 'avatars' | 'date-covers' | 'date-photos';
 
 // Picks an image from the camera roll, downscales + compresses it, uploads
 // it to the given Supabase Storage bucket/path, and returns the public URL.
@@ -53,4 +53,16 @@ export async function pickAndUploadImage(bucket: UploadBucket, path: string): Pr
     console.warn('Image processing/upload failed', err);
     return null;
   }
+}
+
+// Deletes an object from Supabase Storage. Used when removing a single photo
+// from a one-to-many gallery (unlike avatars/date-covers, which just get
+// overwritten via upsert and never need an explicit delete).
+export async function deleteUploadedImage(bucket: UploadBucket, path: string): Promise<boolean> {
+  const { error } = await supabase.storage.from(bucket).remove([path]);
+  if (error) {
+    console.warn(`Failed to delete image ${bucket}/${path}`, error);
+    return false;
+  }
+  return true;
 }

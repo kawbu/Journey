@@ -129,6 +129,99 @@ export type Database = {
           },
         ]
       }
+      date_photos: {
+        Row: {
+          caption: string | null
+          created_at: string
+          created_by: string | null
+          date_entry_id: string
+          id: string
+          storage_path: string
+          url: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          created_by?: string | null
+          date_entry_id: string
+          id?: string
+          storage_path: string
+          url: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          created_by?: string | null
+          date_entry_id?: string
+          id?: string
+          storage_path?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "date_photos_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "date_photos_date_entry_id_fkey"
+            columns: ["date_entry_id"]
+            isOneToOne: false
+            referencedRelation: "date_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journey_ai_suggestions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          journey_id: string
+          saved_by: string | null
+          suggested_activity: Database["public"]["Enums"]["activity_type"]
+          suggested_category: Database["public"]["Enums"]["bucket_category"]
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          journey_id: string
+          saved_by?: string | null
+          suggested_activity: Database["public"]["Enums"]["activity_type"]
+          suggested_category: Database["public"]["Enums"]["bucket_category"]
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          journey_id?: string
+          saved_by?: string | null
+          suggested_activity?: Database["public"]["Enums"]["activity_type"]
+          suggested_category?: Database["public"]["Enums"]["bucket_category"]
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_ai_suggestions_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journey_ai_suggestions_saved_by_fkey"
+            columns: ["saved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       journey_bucket_status: {
         Row: {
           bucket_item_id: string
@@ -369,6 +462,7 @@ export type Database = {
           id: string
           latitude: number
           longitude: number
+          order_index: number
           rating: number | null
           time: string
           title: string
@@ -384,6 +478,7 @@ export type Database = {
           id?: string
           latitude: number
           longitude: number
+          order_index?: number
           rating?: number | null
           time: string
           title: string
@@ -399,6 +494,7 @@ export type Database = {
           id?: string
           latitude?: number
           longitude?: number
+          order_index?: number
           rating?: number | null
           time?: string
           title?: string

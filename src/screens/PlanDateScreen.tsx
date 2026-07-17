@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
+import DraggableFlatList, { ScaleDecorator, type RenderItemParams } from 'react-native-draggable-flatlist';
 import AppHeader from '../components/AppHeader';
 import PickerField from '../components/PickerField';
 import StopEditorCard, { type StopDraft } from '../components/StopEditorCard';
@@ -85,7 +86,7 @@ export default function PlanDateScreen() {
     if (editingEntry) {
       return editingEntry.stops
         .slice()
-        .sort((a, b) => a.time.localeCompare(b.time))
+        .sort((a, b) => a.orderIndex - b.orderIndex)
         .map(stopDraftFromStop);
     }
     return [
@@ -133,8 +134,8 @@ export default function PlanDateScreen() {
     }
 
     const isoDate = date.toISOString().slice(0, 10);
-    const sorted = [...stops].sort((a, b) => a.time.getTime() - b.time.getTime());
-    const firstActivity = sorted[0]?.activity ?? 'surprise';
+    const ordered = [...stops];
+    const firstActivity = ordered[0]?.activity ?? 'surprise';
 
     return {
       id: entryId,
@@ -144,8 +145,9 @@ export default function PlanDateScreen() {
       date: isoDate,
       coverImage: coverImage ?? editingEntry?.coverImage ?? coverImageFor(firstActivity),
       isDraft,
-      stops: sorted.map((s, idx) => ({
+      stops: ordered.map((s, idx) => ({
         id: s.id ?? `${nextKey()}-${idx}`,
+        orderIndex: idx,
         time: `${String(s.time.getHours()).padStart(2, '0')}:${String(s.time.getMinutes()).padStart(2, '0')}`,
         title: s.title.trim() || 'Untitled Stop',
         description: s.description.trim() || 'A little surprise, just for the two of you.',
@@ -201,98 +203,113 @@ export default function PlanDateScreen() {
           rightIcon="check"
           onRightPress={saving ? undefined : () => handleSave(false)}
         />
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          <Text style={styles.heroTitle}>{isEditing ? 'Edit Your Story' : 'Create a New Story'}</Text>
-          <Text style={styles.heroSubtitle}>
-            {isEditing
-              ? 'Adjust the plan — every detail, still made with care.'
-              : 'Design a meaningful day together, stop by stop.'}
-          </Text>
+        <DraggableFlatList
+          data={stops}
+          keyExtractor={(stop) => stop.key}
+          onDragEnd={({ data }) => setStops(data)}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.scrollContent}
+          ListHeaderComponent={
+            <>
+              <Text style={styles.heroTitle}>{isEditing ? 'Edit Your Story' : 'Create a New Story'}</Text>
+              <Text style={styles.heroSubtitle}>
+                {isEditing
+                  ? 'Adjust the plan — every detail, still made with care.'
+                  : 'Design a meaningful day together, stop by stop.'}
+              </Text>
 
-          <View style={styles.detailsCard}>
-            <Text style={styles.fieldLabel}>DATE TITLE</Text>
-            <TextInput
-              style={styles.titleInput}
-              placeholder="e.g. Sunset & Strings"
-              placeholderTextColor={theme.colors.outlineVariant}
-              value={title}
-              onChangeText={setTitle}
-            />
-            <Text style={[styles.fieldLabel, { marginTop: 16 }]}>WHEN</Text>
-            <PickerField mode="date" value={date} onChange={setDate} minimumDate={new Date()}>
-              <View style={styles.dateRow}>
-                <MaterialIcons name="calendar-today" size={18} color={theme.colors.onSurfaceVariant} />
-                <Text style={styles.dateText}>
-                  {date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
-                </Text>
+              <View style={styles.detailsCard}>
+                <Text style={styles.fieldLabel}>DATE TITLE</Text>
+                <TextInput
+                  style={styles.titleInput}
+                  placeholder="e.g. Sunset & Strings"
+                  placeholderTextColor={theme.colors.outlineVariant}
+                  value={title}
+                  onChangeText={setTitle}
+                />
+                <Text style={[styles.fieldLabel, { marginTop: 16 }]}>WHEN</Text>
+                <PickerField mode="date" value={date} onChange={setDate} minimumDate={new Date()}>
+                  <View style={styles.dateRow}>
+                    <MaterialIcons name="calendar-today" size={18} color={theme.colors.onSurfaceVariant} />
+                    <Text style={styles.dateText}>
+                      {date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
+                    </Text>
+                  </View>
+                </PickerField>
+
+                <Text style={[styles.fieldLabel, { marginTop: 16 }]}>COVER PHOTO</Text>
+                <Pressable
+                  style={styles.coverRow}
+                  onPress={handlePickCoverImage}
+                  disabled={uploadingCover}
+                  accessibilityLabel="Change cover photo"
+                >
+                  {coverImage ? (
+                    <Image source={{ uri: coverImage }} style={styles.coverThumb} />
+                  ) : (
+                    <View style={[styles.coverThumb, styles.coverThumbEmpty]}>
+                      <MaterialIcons name="photo-camera" size={18} color={theme.colors.outline} />
+                    </View>
+                  )}
+                  <Text style={styles.coverText}>
+                    {uploadingCover ? 'Uploading...' : coverImage ? 'Change Cover Photo' : 'Add a Cover Photo'}
+                  </Text>
+                </Pressable>
               </View>
-            </PickerField>
-
-            <Text style={[styles.fieldLabel, { marginTop: 16 }]}>COVER PHOTO</Text>
-            <Pressable
-              style={styles.coverRow}
-              onPress={handlePickCoverImage}
-              disabled={uploadingCover}
-              accessibilityLabel="Change cover photo"
-            >
-              {coverImage ? (
-                <Image source={{ uri: coverImage }} style={styles.coverThumb} />
-              ) : (
-                <View style={[styles.coverThumb, styles.coverThumbEmpty]}>
-                  <MaterialIcons name="photo-camera" size={18} color={theme.colors.outline} />
-                </View>
-              )}
-              <Text style={styles.coverText}>
-                {uploadingCover ? 'Uploading...' : coverImage ? 'Change Cover Photo' : 'Add a Cover Photo'}
-              </Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.stopsList}>
-            {stops.map((stop, idx) => (
-              <StopEditorCard
-                key={stop.key}
-                stop={stop}
-                index={idx}
-                isLast={idx === stops.length - 1}
-                canDelete={stops.length > 1}
-                mapDefaultCenter={stops[idx - 1]?.location ?? SF_CENTER}
-                onChange={(next) => updateStop(stop.key, next)}
-                onDelete={() => deleteStop(stop.key)}
-              />
-            ))}
-          </View>
-
-          <Pressable style={styles.addStopButton} onPress={addStop}>
-            <MaterialIcons name="add" size={18} color={theme.colors.outline} />
-            <Text style={styles.addStopText}>Add Another Stop</Text>
-          </Pressable>
-
-          <View style={styles.actions}>
-            <Pressable
-              style={[styles.saveButton, saving && styles.saveButtonDisabled]}
-              onPress={() => handleSave(false)}
-              disabled={saving}
-            >
-              <Text style={styles.saveButtonText}>
-                {saving ? 'SAVING...' : isEditing ? 'SAVE CHANGES' : 'SAVE JOURNEY'}
-              </Text>
-            </Pressable>
-            {isEditing ? (
-              <Pressable style={styles.deleteButton} onPress={handleDelete} disabled={saving}>
-                <Text style={styles.deleteButtonText}>DELETE JOURNEY</Text>
+            </>
+          }
+          renderItem={({ item: stop, getIndex, drag, isActive }: RenderItemParams<StopDraft>) => {
+            const idx = getIndex() ?? 0;
+            return (
+              <ScaleDecorator>
+                <StopEditorCard
+                  stop={stop}
+                  index={idx}
+                  isLast={idx === stops.length - 1}
+                  canDelete={stops.length > 1}
+                  mapDefaultCenter={stops[idx - 1]?.location ?? SF_CENTER}
+                  onChange={(next) => updateStop(stop.key, next)}
+                  onDelete={() => deleteStop(stop.key)}
+                  drag={drag}
+                  isActive={isActive}
+                />
+              </ScaleDecorator>
+            );
+          }}
+          ListFooterComponent={
+            <>
+              <Pressable style={styles.addStopButton} onPress={addStop}>
+                <MaterialIcons name="add" size={18} color={theme.colors.outline} />
+                <Text style={styles.addStopText}>Add Another Stop</Text>
               </Pressable>
-            ) : (
-              <Pressable
-                style={styles.draftButton}
-                onPress={() => handleSave(true)}
-                disabled={saving}
-              >
-                <Text style={styles.draftButtonText}>SAVE AS DRAFT</Text>
-              </Pressable>
-            )}
-          </View>
-        </ScrollView>
+
+              <View style={styles.actions}>
+                <Pressable
+                  style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+                  onPress={() => handleSave(false)}
+                  disabled={saving}
+                >
+                  <Text style={styles.saveButtonText}>
+                    {saving ? 'SAVING...' : isEditing ? 'SAVE CHANGES' : 'SAVE JOURNEY'}
+                  </Text>
+                </Pressable>
+                {isEditing ? (
+                  <Pressable style={styles.deleteButton} onPress={handleDelete} disabled={saving}>
+                    <Text style={styles.deleteButtonText}>DELETE JOURNEY</Text>
+                  </Pressable>
+                ) : (
+                  <Pressable
+                    style={styles.draftButton}
+                    onPress={() => handleSave(true)}
+                    disabled={saving}
+                  >
+                    <Text style={styles.draftButtonText}>SAVE AS DRAFT</Text>
+                  </Pressable>
+                )}
+              </View>
+            </>
+          }
+        />
       </View>
     </KeyboardAvoidingView>
   );
@@ -376,9 +393,6 @@ const makeStyles = (theme: Theme) =>
       fontFamily: theme.fonts.bodyMedium,
       fontSize: 15,
       color: theme.colors.onSurfaceVariant,
-    },
-    stopsList: {
-      marginBottom: 4,
     },
     addStopButton: {
       borderWidth: 2,

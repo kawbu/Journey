@@ -29,6 +29,8 @@ interface StopEditorCardProps {
   mapDefaultCenter: Coordinates;
   onChange: (next: StopDraft) => void;
   onDelete: () => void;
+  drag: () => void;
+  isActive: boolean;
 }
 
 export default function StopEditorCard({
@@ -39,6 +41,8 @@ export default function StopEditorCard({
   mapDefaultCenter,
   onChange,
   onDelete,
+  drag,
+  isActive,
 }: StopEditorCardProps) {
   const theme = useTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
@@ -56,9 +60,14 @@ export default function StopEditorCard({
         {!isLast && <View style={styles.connector} />}
       </View>
 
-      <View style={styles.card}>
+      <View style={[styles.card, isActive && styles.cardActive]}>
         <View style={styles.headerRow}>
-          <Text style={styles.stopHeading}>Stop {index + 1}</Text>
+          <View style={styles.headerLeft}>
+            <Pressable onLongPress={drag} disabled={isActive} hitSlop={8} style={styles.dragHandle}>
+              <MaterialIcons name="drag-indicator" size={20} color={theme.colors.outline} />
+            </Pressable>
+            <Text style={styles.stopHeading}>Stop {index + 1}</Text>
+          </View>
           <PickerField mode="time" value={stop.time} onChange={(time) => onChange({ ...stop, time })}>
             <View style={styles.timeChip}>
               <MaterialIcons name="schedule" size={14} color={theme.colors.outline} />
@@ -171,11 +180,24 @@ const makeStyles = (theme: Theme) =>
       gap: 4,
       ...theme.shadows.sunsetGlow,
     },
+    cardActive: {
+      borderColor: theme.colors.primary,
+      ...theme.shadows.bottomSheet,
+    },
     headerRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       marginBottom: 8,
+    },
+    headerLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    dragHandle: {
+      paddingVertical: 4,
+      paddingRight: 2,
     },
     stopHeading: {
       fontFamily: theme.fonts.display,

@@ -22,7 +22,8 @@ export interface Coordinates {
 
 export interface Stop {
   id: string;
-  time: string; // 24h "HH:mm" used for sorting + editing
+  orderIndex: number;
+  time: string; // 24h "HH:mm" for editing/display
   title: string;
   description: string;
   activity: ActivityType;
@@ -43,6 +44,13 @@ export interface DateEntry {
   stops: Stop[];
 }
 
+export interface DatePhoto {
+  id: string;
+  url: string;
+  caption?: string;
+  createdAt: string;
+}
+
 export type BucketCategory = 'Outdoors' | 'Creative' | 'Fine Dining' | 'Staycation';
 
 export interface BucketItem {
@@ -54,4 +62,21 @@ export interface BucketItem {
   featured?: boolean;
   layout: 'large' | 'standard' | 'wide';
   suggestedActivity: ActivityType;
+}
+
+export interface AiSuggestion {
+  clientId: string; // local-only, for React keys — never sent to/from the server
+  title: string;
+  description: string;
+  suggestedActivity: ActivityType;
+  suggestedCategory: BucketCategory;
+}
+
+export interface SavedAiSuggestion {
+  id: string;
+  title: string;
+  description?: string;
+  suggestedActivity: ActivityType;
+  suggestedCategory: BucketCategory;
+  createdAt: string;
 }
