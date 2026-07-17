@@ -1,3 +1,17 @@
+# [1.2.0](https://github.com/kawbu/Journey/compare/v1.1.0...v1.2.0) (2026-07-17)
+
+
+### Bug Fixes
+
+* **ci:** regenerate package-lock.json to sync with package.json ([d442ae4](https://github.com/kawbu/Journey/commit/d442ae4e63f933b1f399b88af1aeda47878c7969))
+
+
+### Features
+
+* add AI concierge date suggestions and photo memory gallery ([62350da](https://github.com/kawbu/Journey/commit/62350da8efde3168250e40a5507e02114300122f))
+* **dates:** add drag-and-drop stop reordering ([b04bc95](https://github.com/kawbu/Journey/commit/b04bc954f6b87f6d1238736db0355e922a909821))
+* **map:** add swipe navigation between spots ([0603e55](https://github.com/kawbu/Journey/commit/0603e55fc87a718e1d6df2f6c24bc154bbaac5fb))
+
 # [1.1.0](https://github.com/kawbu/Journey/compare/v1.0.0...v1.1.0) (2026-07-05)
 
 
