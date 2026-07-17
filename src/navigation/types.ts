@@ -18,6 +18,8 @@ export type RootStackParamList = {
     | { prefillTitle?: string; prefillActivity?: ActivityType; editDateId?: string }
     | undefined;
   PastDates: undefined;
+  DateMemories: { dateId: string };
   Settings: undefined;
   HelpFeedback: undefined;
+  AiConcierge: undefined;
 };

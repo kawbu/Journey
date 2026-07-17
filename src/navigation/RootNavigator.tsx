@@ -7,6 +7,8 @@ import BucketListScreen from '../screens/BucketListScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import PlanDateScreen from '../screens/PlanDateScreen';
 import PastDatesScreen from '../screens/PastDatesScreen';
+import DateMemoriesScreen from '../screens/DateMemoriesScreen';
+import AiConciergeScreen from '../screens/AiConciergeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import HelpFeedbackScreen from '../screens/HelpFeedbackScreen';
 import TabBar from './TabBar';
@@ -42,6 +44,8 @@ export default function RootNavigator() {
       <Stack.Screen name="Tabs" component={Tabs} />
       <Stack.Screen name="PlanDate" component={PlanDateScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="PastDates" component={PastDatesScreen} />
+      <Stack.Screen name="DateMemories" component={DateMemoriesScreen} />
+      <Stack.Screen name="AiConcierge" component={AiConciergeScreen} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="HelpFeedback" component={HelpFeedbackScreen} />
     </Stack.Navigator>

@@ -59,7 +59,7 @@ export default function PastDatesScreen() {
   const hasActiveRange = Boolean(range.start || range.end);
 
   const handleOpenDate = (dateId: string) => {
-    navigation.navigate('PlanDate', { editDateId: dateId });
+    navigation.navigate('DateMemories', { dateId });
   };
 
   return (
