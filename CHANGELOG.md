@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/kawbu/Journey/compare/v1.2.2...v1.2.3) (2026-07-18)
+
+
+### Bug Fixes
+
+* **build:** add missing @react-native-community/cli dependency ([fdec5ec](https://github.com/kawbu/Journey/commit/fdec5ec4da9a7cf2440ce9ddfbb567761a36f93c))
+
 ## [1.2.2](https://github.com/kawbu/Journey/compare/v1.2.1...v1.2.2) (2026-07-18)
 
 
