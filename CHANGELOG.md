@@ -1,3 +1,11 @@
+## [1.2.2](https://github.com/kawbu/Journey/compare/v1.2.1...v1.2.2) (2026-07-18)
+
+
+### Bug Fixes
+
+* **build:** add missing babel-preset-expo dependency ([1bd282c](https://github.com/kawbu/Journey/commit/1bd282ceef60c64f109d2063ff5835772514a484))
+* **ci:** fully regenerate package-lock.json from scratch ([4735550](https://github.com/kawbu/Journey/commit/4735550cfc75199ba96e166990ac53a5b357b664))
+
 ## [1.2.1](https://github.com/kawbu/Journey/compare/v1.2.0...v1.2.1) (2026-07-18)
 
 
