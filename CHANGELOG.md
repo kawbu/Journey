@@ -1,3 +1,10 @@
+## [1.2.4](https://github.com/kawbu/Journey/compare/v1.2.3...v1.2.4) (2026-07-18)
+
+
+### Bug Fixes
+
+* **build:** force static framework linkage for reanimated compatibility ([c057b7d](https://github.com/kawbu/Journey/commit/c057b7d057ff2c4aa0ba43d5324d59289f857f87))
+
 ## [1.2.3](https://github.com/kawbu/Journey/compare/v1.2.2...v1.2.3) (2026-07-18)
 
 
