@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/kawbu/Journey/compare/v1.3.0...v1.4.0) (2026-07-18)
+
+
+### Features
+
+* **ui:** replace default app icon with Our Journey logo ([0317261](https://github.com/kawbu/Journey/commit/0317261845cd1f803cdbd37b9dba9a57f00939f4))
+
 # [1.3.0](https://github.com/kawbu/Journey/compare/v1.2.5...v1.3.0) (2026-07-18)
 
 
