@@ -1,3 +1,10 @@
+## [1.2.5](https://github.com/kawbu/Journey/compare/v1.2.4...v1.2.5) (2026-07-18)
+
+
+### Bug Fixes
+
+* **build:** build React Native from source to fix RNWorklets crash ([8d01254](https://github.com/kawbu/Journey/commit/8d012541fa16d75f3bcefd0e903cf04bba192295))
+
 ## [1.2.4](https://github.com/kawbu/Journey/compare/v1.2.3...v1.2.4) (2026-07-18)
 
 
