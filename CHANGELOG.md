@@ -1,3 +1,11 @@
+## [1.2.1](https://github.com/kawbu/Journey/compare/v1.2.0...v1.2.1) (2026-07-18)
+
+
+### Bug Fixes
+
+* **build:** add missing babel.config.js for reanimated/worklets ([bf1c182](https://github.com/kawbu/Journey/commit/bf1c182f2f74397ae7154f3b9b4ff2d674d13f02))
+* **build:** pin react-native-worklets to 0.10.2 ([81af7b3](https://github.com/kawbu/Journey/commit/81af7b3e204c74fd6ce0f946f3205de8947ef568))
+
 # [1.2.0](https://github.com/kawbu/Journey/compare/v1.1.0...v1.2.0) (2026-07-17)
 
 
