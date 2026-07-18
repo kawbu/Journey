@@ -101,7 +101,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.surface,
     paddingHorizontal: 24,
-    paddingTop: 16,
+    paddingTop: 32,
   },
   brand: {
     fontFamily: theme.fonts.display,

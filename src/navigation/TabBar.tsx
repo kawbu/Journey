@@ -73,9 +73,9 @@ const makeStyles = (theme: Theme) =>
       flexDirection: 'row',
       justifyContent: 'space-around',
       alignItems: 'center',
-      paddingTop: 10,
+      paddingTop: 8,
       paddingHorizontal: 8,
-      paddingBottom: 6,
+      paddingBottom: 8,
     },
     tabItem: {
       alignItems: 'center',

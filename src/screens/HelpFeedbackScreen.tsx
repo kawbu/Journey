@@ -12,7 +12,8 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 type IconName = React.ComponentProps<typeof MaterialIcons>['name'];
 type FeedbackType = 'feature' | 'bug';
 
-const SUPPORT_EMAIL = 'hello@ourjourney.app';
+const SUPPORT_EMAIL = 'kawbu2005@gmail.com';
+const APP_STORE_ID = '6792198118';
 
 const TOPICS: { icon: IconName; title: string; tip: string }[] = [
   {
@@ -38,6 +39,10 @@ function buildMailtoUrl(to: string, subject: string, body?: string): string {
   return `mailto:${to}?${params.join('&')}`;
 }
 
+function buildAppStoreReviewUrl(): string {
+  return `itms-apps://itunes.apple.com/app/id${APP_STORE_ID}?action=write-review`;
+}
+
 export default function HelpFeedbackScreen() {
   const navigation = useNavigation<Nav>();
   const theme = useTheme();
@@ -49,7 +54,7 @@ export default function HelpFeedbackScreen() {
   const [rating, setRating] = useState(0);
 
   const handleStartChat = () => {
-    Alert.alert('Coming soon', 'Live chat is coming soon — email us in the meantime.');
+    navigation.navigate('SupportChat');
   };
 
   const handleSendEmail = () => {
@@ -67,6 +72,11 @@ export default function HelpFeedbackScreen() {
     }
     const subject = feedbackType === 'feature' ? 'Feature Suggestion' : 'Bug Report';
     Linking.openURL(buildMailtoUrl(SUPPORT_EMAIL, subject, feedbackText.trim())).catch(() => undefined);
+  };
+
+  const handleRate = (value: number) => {
+    setRating(value);
+    Linking.openURL(buildAppStoreReviewUrl()).catch(() => undefined);
   };
 
   return (
@@ -118,7 +128,13 @@ export default function HelpFeedbackScreen() {
           <Text style={styles.sectionLabel}>GET IN TOUCH</Text>
           <View style={styles.channelsColumn}>
             <View style={styles.chatCard}>
-              <Text style={styles.chatTitle}>Chat with us</Text>
+              <View style={styles.chatTitleRow}>
+                <Text style={styles.chatTitle}>Chat with us</Text>
+                <View style={styles.plusBadge}>
+                  <MaterialIcons name="stars" size={11} color={theme.colors.primary} />
+                  <Text style={styles.plusBadgeText}>Journey+</Text>
+                </View>
+              </View>
               <Text style={styles.chatSubtitle}>Live support available 9am–6pm PST</Text>
               <Pressable style={styles.chatButton} onPress={handleStartChat}>
                 <Text style={styles.chatButtonText}>Start Conversation</Text>
@@ -204,7 +220,7 @@ export default function HelpFeedbackScreen() {
           <Text style={styles.ratingSubtitle}>Your ratings help us bloom and support more couples.</Text>
           <View style={styles.starsRow}>
             {[1, 2, 3, 4, 5].map((value) => (
-              <Pressable key={value} onPress={() => setRating(value)} hitSlop={6}>
+              <Pressable key={value} onPress={() => handleRate(value)} hitSlop={6}>
                 <MaterialIcons
                   name={value <= rating ? 'star' : 'star-border'}
                   size={36}
@@ -304,11 +320,31 @@ const makeStyles = (theme: Theme) =>
       minHeight: 150,
       overflow: 'hidden',
     },
+    chatTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 4,
+    },
     chatTitle: {
       fontFamily: theme.fonts.display,
       fontSize: 19,
       color: theme.colors.onPrimary,
-      marginBottom: 4,
+    },
+    plusBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      backgroundColor: theme.colors.onPrimary,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderRadius: 999,
+    },
+    plusBadgeText: {
+      fontFamily: theme.fonts.bodyBold,
+      fontSize: 10,
+      letterSpacing: 0.3,
+      color: theme.colors.primary,
     },
     chatSubtitle: {
       fontFamily: theme.fonts.body,

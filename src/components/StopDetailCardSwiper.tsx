@@ -23,6 +23,7 @@ interface StopDetailCardSwiperProps {
   onSwipeRight: () => void;
   canSwipeLeft: boolean;
   canSwipeRight: boolean;
+  onPress: () => void;
 }
 
 const SWIPE_DISTANCE_THRESHOLD = 60;
@@ -37,6 +38,7 @@ export default function StopDetailCardSwiper({
   onSwipeRight,
   canSwipeLeft,
   canSwipeRight,
+  onPress,
 }: StopDetailCardSwiperProps) {
   const translateX = useSharedValue(0);
   // Direction of the most recently committed swipe, read synchronously by the
@@ -55,6 +57,10 @@ export default function StopDetailCardSwiper({
   };
 
   const pan = Gesture.Pan()
+    // Requires a real, deliberate drag before the pan activates at all — a
+    // stationary or near-stationary touch never enters this gesture, so it
+    // can't "win" against the sibling tap gesture below and suppress it.
+    .minDistance(10)
     .onChange((event) => {
       const resist = (event.translationX > 0 && !canSwipeRight) || (event.translationX < 0 && !canSwipeLeft);
       translateX.value = resist ? event.translationX / 4 : event.translationX;
@@ -79,12 +85,21 @@ export default function StopDetailCardSwiper({
       }
     });
 
+  // A dedicated tap gesture, raced against the pan above: whichever actually
+  // activates first wins. Since pan requires 10px of movement to activate at
+  // all, a real tap is unambiguous — this one fires and pan never does.
+  const tap = Gesture.Tap().onEnd(() => {
+    runOnJS(onPress)();
+  });
+
+  const gesture = Gesture.Race(pan, tap);
+
   const dragStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
   }));
 
   return (
-    <GestureDetector gesture={pan}>
+    <GestureDetector gesture={gesture}>
       <Animated.View
         key={stop.id}
         entering={(lastDirection.current === 'left' ? SlideInRight : SlideInLeft).duration(280)}

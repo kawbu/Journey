@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
-import { Image, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
 import { useTheme } from '../context/ThemeContext';
 import type { Theme } from '../theme/theme';
 import { formatTime12h } from '../utils/format';
@@ -27,6 +29,14 @@ function openDirections(stop: Stop) {
 export default function StopDetailCard({ stop, index, total, isCurrent }: StopDetailCardProps) {
   const theme = useTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
+
+  // A real Gesture Handler tap, not React Native's separate Pressable
+  // responder system — RNGH arbitrates this against the parent card's
+  // Gesture.Pan() itself, so tapping this button can't also be read as a
+  // tap-on-the-card by the swiper's pan-end fallback.
+  const directionsTap = Gesture.Tap().onEnd(() => {
+    runOnJS(openDirections)(stop);
+  });
 
   return (
     <View style={styles.card}>
@@ -72,9 +82,11 @@ export default function StopDetailCard({ stop, index, total, isCurrent }: StopDe
         </View>
       </View>
 
-      <Pressable style={styles.navButton} onPress={() => openDirections(stop)} hitSlop={8}>
-        <MaterialIcons name="near-me" size={20} color={theme.colors.onSecondaryContainer} />
-      </Pressable>
+      <GestureDetector gesture={directionsTap}>
+        <View style={styles.navButton} hitSlop={8}>
+          <MaterialIcons name="near-me" size={20} color={theme.colors.onSecondaryContainer} />
+        </View>
+      </GestureDetector>
     </View>
   );
 }

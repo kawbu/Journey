@@ -11,6 +11,7 @@ import DateMemoriesScreen from '../screens/DateMemoriesScreen';
 import AiConciergeScreen from '../screens/AiConciergeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import HelpFeedbackScreen from '../screens/HelpFeedbackScreen';
+import SupportChatScreen from '../screens/SupportChatScreen';
 import TabBar from './TabBar';
 import AuthNavigator from './AuthNavigator';
 import { useAuth } from '../context/AuthContext';
@@ -48,6 +49,7 @@ export default function RootNavigator() {
       <Stack.Screen name="AiConcierge" component={AiConciergeScreen} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="HelpFeedback" component={HelpFeedbackScreen} />
+      <Stack.Screen name="SupportChat" component={SupportChatScreen} />
     </Stack.Navigator>
   );
 }

@@ -95,6 +95,11 @@ export default function MapScreen() {
     if (idx < stops.length - 1) setSelectedStopId(stops[idx + 1].id);
   };
 
+  const handleEditDate = () => {
+    if (!activeDate) return;
+    navigation.navigate('PlanDate', { editDateId: activeDate.id });
+  };
+
   return (
     <View style={styles.screen}>
       <AppHeader
@@ -178,6 +183,7 @@ export default function MapScreen() {
               onSwipeRight={goToPrevStop}
               canSwipeLeft={displayedIndex < stops.length}
               canSwipeRight={displayedIndex > 1}
+              onPress={handleEditDate}
             />
           </View>
         )}

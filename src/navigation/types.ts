@@ -22,4 +22,5 @@ export type RootStackParamList = {
   Settings: undefined;
   HelpFeedback: undefined;
   AiConcierge: undefined;
+  SupportChat: undefined;
 };

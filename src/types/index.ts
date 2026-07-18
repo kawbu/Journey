@@ -80,3 +80,10 @@ export interface SavedAiSuggestion {
   suggestedCategory: BucketCategory;
   createdAt: string;
 }
+
+export interface ChatMessage {
+  id: string; // client-generated, for React keys — never sent to the server
+  role: 'user' | 'assistant';
+  content: string;
+  createdAt: string;
+}
