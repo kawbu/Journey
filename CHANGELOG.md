@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/kawbu/Journey/compare/v1.2.5...v1.3.0) (2026-07-18)
+
+
+### Features
+
+* add AI live support chat and fix map card tap-vs-swipe ([3bbf141](https://github.com/kawbu/Journey/commit/3bbf1412da6048d757137fb365912a457e1b1c45))
+
 ## [1.2.5](https://github.com/kawbu/Journey/compare/v1.2.4...v1.2.5) (2026-07-18)
 
 
