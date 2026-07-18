@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/kawbu/Journey/compare/v1.4.0...v1.4.1) (2026-07-18)
+
+
+### Bug Fixes
+
+* **build:** explicitly bind build profiles to their EAS environment ([0f22ffd](https://github.com/kawbu/Journey/commit/0f22ffd5ad37c1d40bc10578f18307963f7671ca))
+
 # [1.4.0](https://github.com/kawbu/Journey/compare/v1.3.0...v1.4.0) (2026-07-18)
 
 
